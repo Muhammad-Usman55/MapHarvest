@@ -106,7 +106,7 @@ app.get('/api/scrape', async (req, res) => {
         // Go directly to Google Maps search URL
         const searchUrl = `https://www.google.com/maps/search/${encodeURIComponent(query)}`;
         sendEvent(res, 'info', `Searching Google Maps for: ${query}`);
-        await page.goto(searchUrl, { waitUntil: 'networkidle2' });
+        await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 120000 });
 
         sendEvent(res, 'info', 'Waiting for search results to load...');
 
@@ -254,7 +254,7 @@ app.get('/api/scrape', async (req, res) => {
 
             try {
                 // Navigate to the listing detail URL
-                await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
+                await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
                 await new Promise(r => setTimeout(r, 2000)); // wait for details to settle
 
                 const placeDetails = await extractDetails(page, url);
