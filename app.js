@@ -206,7 +206,7 @@
         }
 
         // Connect to local Node backend SSE endpoint
-        const sseUrl = `http://localhost:3000/api/scrape?query=${encodeURIComponent(query)}`;
+        const sseUrl = `/api/scrape?query=${encodeURIComponent(query)}`;
         scraperSource = new EventSource(sseUrl);
 
         scraperSource.onmessage = function (event) {
