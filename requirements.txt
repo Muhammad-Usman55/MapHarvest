@@ -1,0 +1,49 @@
+# ==============================================================================
+# 📍 MapHarvest — Detailed System & Software Requirements
+# Developed by Muhammad Usman Shahid
+# ==============================================================================
+
+1. Node.js Runtime Environment
+--------------------------------------------------------------------------------
+* Required: Node.js (v18.0.0 or higher recommended)
+  - Verify your installed version using: `node -v`
+* NPM (Node Package Manager): Included with Node.js
+  - Verify your installed version using: `npm -v`
+
+2. Project Dependencies (package.json)
+--------------------------------------------------------------------------------
+* express (v4.19.2 or higher)
+  - Purpose: Serves the static web dashboard files and acts as the backend server.
+* cors (v2.8.5 or higher)
+  - Purpose: Handles Cross-Origin Resource Sharing for API communication.
+* puppeteer (v22.12.0 or higher)
+  - Purpose: Provides browser automation to open Google Maps search results, scroll pages, and extract business details.
+
+3. Browser Requirements
+--------------------------------------------------------------------------------
+* MapHarvest uses Puppeteer to control a headless Chrome/Edge browser.
+* In environments where Chrome doesn't download automatically (e.g., behind firewalls), MapHarvest automatically falls back to system installations at:
+  - Windows: 
+    * C:\Program Files\Google\Chrome\Application\chrome.exe
+    * C:\Program Files (x86)\Google\Chrome\Application\chrome.exe
+    * C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe
+    * C:\Program Files\Microsoft\Edge\Application\msedge.exe
+  - macOS & Linux: Assumes system Chrome is in standard binary paths.
+* Ensure Google Chrome or Microsoft Edge is installed on the host computer.
+
+4. Operating System Libraries (Linux Specific)
+--------------------------------------------------------------------------------
+If running on a Linux headless server (such as Ubuntu/Debian), Puppeteer requires various system libraries. Run the following command to install them:
+`sudo apt-get install -y ca-certificates fonts-liberation libasound2 libatk-bridge2.0-0 libatk1.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgbm1 libgcc1 libglib2.0-0 libgtk-3-0 libnspr4 libnss3 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 lsb-release xdg-utils wget`
+
+5. Network & Hardware Ports
+--------------------------------------------------------------------------------
+* Port 3000 must be free and not in use by other local servers (e.g., React dev servers or other backend processes).
+* Hardware: At least 1.5GB of free RAM is recommended to handle Puppeteer browser sessions comfortably.
+
+6. Client-Side Web Browser Requirements
+--------------------------------------------------------------------------------
+* Any modern web browser supporting:
+  - HTML5 Local Storage (used to persist harvested business records locally)
+  - Server-Sent Events (SSE / EventSource API, used for real-time progress logging)
+  - ES6 Javascript syntax
