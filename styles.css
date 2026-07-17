@@ -60,11 +60,16 @@ body {
     background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
     background-size: 60px 60px; z-index: 0; pointer-events: none;
 }
-.bg-glow { position: fixed; border-radius: 50%; filter: blur(120px); opacity: 0.4; z-index: 0; pointer-events: none; animation: glowPulse 8s ease-in-out infinite alternate; }
-.bg-glow-1 { width: 500px; height: 500px; background: rgba(99,102,241,0.12); top: -100px; right: -100px; }
-.bg-glow-2 { width: 400px; height: 400px; background: rgba(168,85,247,0.08); bottom: -50px; left: -50px; animation-delay: 3s; }
-.bg-glow-3 { width: 300px; height: 300px; background: rgba(6,182,212,0.06); top: 50%; left: 50%; animation-delay: 5s; }
-@keyframes glowPulse { 0% { transform: scale(1); opacity: 0.3; } 100% { transform: scale(1.2); opacity: 0.5; } }
+.bg-glow { position: fixed; border-radius: 50%; filter: blur(120px); opacity: 0.35; z-index: 0; pointer-events: none; animation: glowPulse 25s ease-in-out infinite alternate; }
+.bg-glow-1 { width: 550px; height: 550px; background: rgba(99,102,241,0.12); top: -100px; right: -100px; }
+.bg-glow-2 { width: 450px; height: 450px; background: rgba(168,85,247,0.08); bottom: -50px; left: -50px; animation-delay: -5s; }
+.bg-glow-3 { width: 350px; height: 350px; background: rgba(6,182,212,0.06); top: 40%; left: 35%; animation-delay: -10s; }
+@keyframes glowPulse {
+    0% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(120px, 80px) scale(1.15); }
+    66% { transform: translate(-60px, 150px) scale(0.9); }
+    100% { transform: translate(100px, -50px) scale(1.05); }
+}
 
 /* === Scrollbar === */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -470,9 +475,9 @@ body {
 .stat-card {
     background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: var(--border-radius);
     padding: 18px; display: flex; align-items: center; gap: 14px;
-    transition: all var(--transition-base); backdrop-filter: blur(10px);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease; backdrop-filter: blur(10px);
 }
-.stat-card:hover { border-color: var(--border-hover); background: var(--bg-card-hover); transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.stat-card:hover { border-color: var(--accent-blue-light); background: var(--bg-card-hover); transform: translateY(-5px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 0 15px rgba(99, 102, 241, 0.15); }
 .stat-icon {
     width: 44px; height: 44px; border-radius: var(--border-radius-sm);
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
@@ -605,8 +610,8 @@ body {
 
 /* === Export Section === */
 .export-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; margin-bottom: 24px; }
-.export-card { background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: var(--border-radius); padding: 22px; text-align: center; transition: all var(--transition-base); backdrop-filter: blur(10px); cursor: pointer; }
-.export-card:hover { border-color: var(--border-hover); transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.export-card { background: var(--bg-card); border: 1px solid var(--border-primary); border-radius: var(--border-radius); padding: 22px; text-align: center; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.3s ease, box-shadow 0.3s ease; backdrop-filter: blur(10px); cursor: pointer; }
+.export-card:hover { border-color: var(--accent-blue-light); transform: translateY(-5px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 0 15px rgba(99, 102, 241, 0.15); }
 .export-icon { width: 52px; height: 52px; border-radius: var(--border-radius-sm); display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; }
 .export-icon svg { width: 24px; height: 24px; }
 .export-icon.csv { background: rgba(16,185,129,0.1); color: var(--accent-emerald); border: 1px solid rgba(16,185,129,0.15); }
@@ -830,9 +835,16 @@ body {
 }
 .progress-bar-inner {
     height: 100%;
-    background: var(--gradient-primary);
+    background: linear-gradient(90deg, #6366f1, #a855f7, #3b82f6, #6366f1);
+    background-size: 200% auto;
     border-radius: 4px;
     transition: width 0.3s ease;
+    animation: progressShimmer 3s linear infinite;
+}
+@keyframes progressShimmer {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 .status-meta .meta-item {
     display: flex;
