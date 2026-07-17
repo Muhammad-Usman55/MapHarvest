@@ -72,6 +72,17 @@ Open your web browser and navigate to:
 3. Click **Auto Scrape**.
 4. Watch the **Live Terminal** print logs in real-time.
 
+## ☁️ Deploying to Render.com
+
+MapHarvest is pre-configured for automated production deployment on Render.com using the included `Dockerfile` and `render.yaml` blueprint.
+
+### One-Click Deploy Steps:
+1. Create a repository on your GitHub account and push these MapHarvest project files.
+2. Sign in to your [Render.com](https://render.com) dashboard.
+3. Click **New +** and select **Blueprint**.
+4. Link your GitHub account and select your MapHarvest repository.
+5. Render will automatically parse the `render.yaml` file, build the Alpine Docker container, install Chromium with all its required font/system libraries, and launch your server!
+
 ---
 
 ## 📁 Project Structure
@@ -82,3 +93,5 @@ Open your web browser and navigate to:
 - `styles.css` — Modern UI stylesheet, custom terminal pane, custom loader bar, and responsive grids.
 - `package.json` — Declares Node dependencies and startup scripts.
 - `requirements.txt` — Detailed listing of system, browser, OS libraries, and software environment requirements.
+- `Dockerfile` — Custom Alpine-based Docker container configuration containing system Chrome dependencies.
+- `render.yaml` — Blueprint infrastructure-as-code file for one-click Render.com deployment.
