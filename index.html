@@ -281,6 +281,18 @@
                         <span class="stat-label">With Website</span>
                     </div>
                 </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                            <polyline points="22,6 12,13 2,6"/>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="withEmail">0</span>
+                        <span class="stat-label">With Email</span>
+                    </div>
+                </div>
             </div>
 
             <!-- Recent Entries -->
@@ -419,6 +431,10 @@
                         <div class="form-group">
                             <label for="fieldWebsite">Website</label>
                             <input type="url" id="fieldWebsite" placeholder="e.g., https://example.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="fieldEmail">Email Address</label>
+                            <input type="email" id="fieldEmail" placeholder="e.g., contact@business.com">
                         </div>
                         <div class="form-group full-width">
                             <label for="fieldAddress">Address</label>
@@ -610,6 +626,7 @@
                     <div class="form-group"><label for="editPhone">Phone</label><input type="tel" id="editPhone"></div>
                     <div class="form-group full-width"><label for="editAddress">Address</label><input type="text" id="editAddress"></div>
                     <div class="form-group"><label for="editWebsite">Website</label><input type="url" id="editWebsite"></div>
+                    <div class="form-group"><label for="editEmail">Email Address</label><input type="email" id="editEmail"></div>
                     <div class="form-group"><label for="editHours">Hours</label><input type="text" id="editHours"></div>
                     <div class="form-group"><label for="editPriceLevel">Price Level</label>
                         <select id="editPriceLevel"><option value="">Select...</option><option value="$">$</option><option value="$$">$$</option><option value="$$$">$$$</option><option value="$$$$">$$$$</option></select>

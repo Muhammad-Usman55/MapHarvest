@@ -55,6 +55,10 @@ app.get('/api/scrape', async (req, res) => {
                 '--disable-setuid-sandbox',
                 '--disable-dev-shm-usage',
                 '--disable-gpu',
+                '--disable-extensions',
+                '--disable-background-networking',
+                '--disable-default-apps',
+                '--disable-sync',
                 '--window-size=1280,800'
             ]
         };
@@ -100,8 +104,25 @@ app.get('/api/scrape', async (req, res) => {
             }
         }
 
-        const page = await browser.newPage();
+        const pages = await browser.pages();
+        const page = pages.length > 0 ? pages[0] : await browser.newPage();
         await page.setViewport({ width: 1280, height: 800 });
+
+        // Optimize page by blocking images, fonts, media, and third-party trackers/ads
+        await page.setRequestInterception(true);
+        page.on('request', (req) => {
+            const type = req.resourceType();
+            const url = req.url();
+            if (['image', 'font', 'media'].includes(type) || 
+                url.includes('google-analytics') || 
+                url.includes('analytics.js') || 
+                url.includes('doubleclick') || 
+                url.includes('googleadservices')) {
+                req.abort();
+            } else {
+                req.continue();
+            }
+        });
 
         // Go directly to Google Maps search URL
         const searchUrl = `https://www.google.com/maps/search/${encodeURIComponent(query)}`;
@@ -467,6 +488,7 @@ async function extractDetails(page, url) {
             priceLevel,
             latitude,
             longitude,
+            email: '',
             mapsUrl: placeUrl,
             notes: 'Scraped automatically',
             createdAt: new Date().toISOString()
@@ -485,7 +507,7 @@ app.post('/api/download', (req, res) => {
         return;
     }
 
-    const headers = ['Name','Category','Rating','Reviews','Phone','Address','Website','Hours','Price Level','Latitude','Longitude','Maps URL','Notes'];
+    const headers = ['Name','Category','Rating','Reviews','Phone','Address','Website','Hours','Price Level','Latitude','Longitude','Email','Maps URL','Notes'];
     const rows = dataList.map(p => {
         const csvEscape = (str) => {
             if (!str) return '';
@@ -508,6 +530,7 @@ app.post('/api/download', (req, res) => {
             csvEscape(p.priceLevel),
             p.latitude || '',
             p.longitude || '',
+            csvEscape(p.email),
             csvEscape(p.mapsUrl),
             csvEscape(p.notes)
         ].join(',');

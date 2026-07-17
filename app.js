@@ -438,6 +438,10 @@
         const websiteCount = placesData.filter(p => p.website && p.website.trim()).length;
         animateValue(withWebsite, websiteCount);
 
+        const emailCount = placesData.filter(p => p.email && p.email.trim()).length;
+        const withEmailEl = $('#withEmail');
+        if (withEmailEl) animateValue(withEmailEl, emailCount);
+
         renderRecentEntries();
     }
 
@@ -566,7 +570,7 @@
             id: generateId(),
             name: '', category: '', rating: '', reviews: '',
             phone: '', address: '', website: '', hours: '',
-            priceLevel: '', latitude: '', longitude: '', mapsUrl: '', notes: '',
+            priceLevel: '', latitude: '', longitude: '', email: '', mapsUrl: '', notes: '',
             createdAt: new Date().toISOString()
         };
 
@@ -759,6 +763,7 @@
             priceLevel: $('#fieldPriceLevel').value,
             latitude: '',
             longitude: '',
+            email: $('#fieldEmail').value.trim(),
             mapsUrl: $('#fieldMapsUrl').value.trim(),
             notes: $('#fieldNotes').value.trim(),
             createdAt: new Date().toISOString()
@@ -875,6 +880,7 @@
         $('#editPhone').value = place.phone || '';
         $('#editAddress').value = place.address || '';
         $('#editWebsite').value = place.website || '';
+        $('#editEmail').value = place.email || '';
         $('#editHours').value = place.hours || '';
         $('#editPriceLevel').value = place.priceLevel || '';
         $('#editNotes').value = place.notes || '';
@@ -904,7 +910,7 @@
             name: $('#editName').value.trim(), category: $('#editCategory').value.trim(),
             rating: parseFloat($('#editRating').value) || '', reviews: parseInt($('#editReviews').value) || '',
             phone: $('#editPhone').value.trim(), address: $('#editAddress').value.trim(),
-            website: $('#editWebsite').value.trim(), hours: $('#editHours').value.trim(),
+            website: $('#editWebsite').value.trim(), email: $('#editEmail').value.trim(), hours: $('#editHours').value.trim(),
             priceLevel: $('#editPriceLevel').value, notes: $('#editNotes').value.trim(),
             mapsUrl: $('#editMapsUrl').value.trim()
         };
@@ -956,6 +962,7 @@
                     'Price Level': p.priceLevel || '',
                     'Latitude': p.latitude || '',
                     'Longitude': p.longitude || '',
+                    'Email': p.email || '',
                     'Maps URL': p.mapsUrl || '',
                     'Notes': p.notes || ''
                 }));
@@ -987,7 +994,7 @@
     }
 
     function generateCSV() {
-        const headers = ['Name','Category','Rating','Reviews','Phone','Address','Website','Hours','Price Level','Latitude','Longitude','Maps URL','Notes'];
+        const headers = ['Name','Category','Rating','Reviews','Phone','Address','Website','Hours','Price Level','Latitude','Longitude','Email','Maps URL','Notes'];
         const rows = placesData.map(p => [
             csvEscape(p.name),
             csvEscape(p.category),
@@ -1000,6 +1007,7 @@
             csvEscape(p.priceLevel),
             p.latitude || '',
             p.longitude || '',
+            csvEscape(p.email),
             csvEscape(p.mapsUrl),
             csvEscape(p.notes)
         ]);
