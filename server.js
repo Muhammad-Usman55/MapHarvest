@@ -245,8 +245,6 @@ app.get('/api/scrape', async (req, res) => {
         const targetUrls = Array.from(placeUrls);
         sendEvent(res, 'info', `Total listings to scrape: ${targetUrls.length}`);
 
-        const results = [];
-        
         // Scraping details of each listing by navigating to its URL
         for (let i = 0; i < targetUrls.length; i++) {
             const url = targetUrls[i];
@@ -259,7 +257,6 @@ app.get('/api/scrape', async (req, res) => {
 
                 const placeDetails = await extractDetails(page, url);
                 if (placeDetails && placeDetails.name) {
-                    results.push(placeDetails);
                     sendEvent(res, 'place', `Scraped: ${placeDetails.name}`, placeDetails);
                 } else {
                     sendEvent(res, 'warning', `Could not extract details for listing at index ${i + 1}`);
@@ -272,7 +269,7 @@ app.get('/api/scrape', async (req, res) => {
             await new Promise(r => setTimeout(r, 1500));
         }
 
-        sendEvent(res, 'success', 'Scraping completed successfully.', results);
+        sendEvent(res, 'success', 'Scraping completed successfully.');
     } catch (error) {
         sendEvent(res, 'error', `Fatal error during scraping: ${error.message}`);
     } finally {

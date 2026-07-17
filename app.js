@@ -8,18 +8,82 @@
     'use strict';
 
     // ═══════════════════════════════════════════
-    // DATA STORE
+    // DATA STORE (INDEXEDDB & IN-MEMORY CACHE)
     // ═══════════════════════════════════════════
-    const STORAGE_KEY = 'mapharvest_data';
     const SEARCH_HISTORY_KEY = 'mapharvest_searches';
 
+    const dbManager = {
+        dbName: 'MapHarvestDB',
+        storeName: 'places',
+        db: null,
+
+        init() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(this.dbName, 1);
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => {
+                    this.db = request.result;
+                    resolve(this.db);
+                };
+                request.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains(this.storeName)) {
+                        db.createObjectStore(this.storeName, { keyPath: 'id' });
+                    }
+                };
+            });
+        },
+
+        getAll() {
+            return new Promise((resolve, reject) => {
+                if (!this.db) { resolve([]); return; }
+                const transaction = this.db.transaction(this.storeName, 'readonly');
+                const store = transaction.objectStore(this.storeName);
+                const request = store.getAll();
+                request.onsuccess = () => resolve(request.result || []);
+                request.onerror = () => reject(request.error);
+            });
+        },
+
+        save(place) {
+            return new Promise((resolve, reject) => {
+                if (!this.db) { reject(new Error('Database not initialized')); return; }
+                const transaction = this.db.transaction(this.storeName, 'readwrite');
+                const store = transaction.objectStore(this.storeName);
+                const request = store.put(place);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        },
+
+        delete(id) {
+            return new Promise((resolve, reject) => {
+                if (!this.db) { reject(new Error('Database not initialized')); return; }
+                const transaction = this.db.transaction(this.storeName, 'readwrite');
+                const store = transaction.objectStore(this.storeName);
+                const request = store.delete(id);
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
+            });
+        },
+
+        clear() {
+            return new Promise((resolve, reject) => {
+                if (!this.db) { reject(new Error('Database not initialized')); return; }
+                const transaction = this.db.transaction(this.storeName, 'readwrite');
+                const store = transaction.objectStore(this.storeName);
+                const request = store.clear();
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
+            });
+        }
+    };
+
     function loadData() {
-        try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-        catch { return []; }
+        return placesData;
     }
 
     function saveData(data) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
         updateStorageCount();
         updateDashboard();
     }
@@ -28,7 +92,7 @@
         return Date.now().toString(36) + Math.random().toString(36).substr(2, 6);
     }
 
-    let placesData = loadData();
+    let placesData = [];
     let currentSort = { field: null, direction: 'asc' };
     let extractedPreview = [];
     let scraperSource = null;
@@ -233,11 +297,12 @@
                         scrapedSessionData.push(data);
                         updateSessionList();
 
-                        // Write to LocalStorage directly
+                        // Write to IndexedDB directly
                         placesData = loadData();
                         const exists = placesData.some(p => p.name.toLowerCase() === data.name.toLowerCase());
                         if (!exists) {
                             placesData.push(data);
+                            dbManager.save(data);
                             saveData(placesData);
                         }
 
@@ -701,6 +766,7 @@
         if (!place.name) { showToast('Business name is required', 'error'); return; }
         placesData = loadData();
         placesData.push(place);
+        dbManager.save(place);
         saveData(placesData);
         manualForm.reset();
         showToast(`"${place.name}" added successfully!`, 'success');
@@ -786,10 +852,14 @@
         if (confirm(`Delete ${checkedIds.length} selected entries?`)) {
             placesData = loadData();
             placesData = placesData.filter(p => !checkedIds.includes(p.id));
-            saveData(placesData);
-            selectAll.checked = false;
-            renderTable(searchInput.value);
-            showToast(`Deleted ${checkedIds.length} entries`, 'success');
+            Promise.all(checkedIds.map(id => dbManager.delete(id))).then(() => {
+                saveData(placesData);
+                selectAll.checked = false;
+                renderTable(searchInput.value);
+                showToast(`Deleted ${checkedIds.length} entries`, 'success');
+            }).catch(err => {
+                showToast('Failed to delete some entries: ' + err.message, 'error');
+            });
         }
     });
 
@@ -816,6 +886,7 @@
         if (confirm('Delete this entry?')) {
             placesData = loadData();
             placesData = placesData.filter(p => p.id !== id);
+            dbManager.delete(id);
             saveData(placesData);
             renderTable(searchInput.value);
             showToast('Entry deleted', 'success');
@@ -828,7 +899,7 @@
         placesData = loadData();
         const idx = placesData.findIndex(p => p.id === id);
         if (idx === -1) return;
-        placesData[idx] = {
+        const updatedPlace = {
             ...placesData[idx],
             name: $('#editName').value.trim(), category: $('#editCategory').value.trim(),
             rating: parseFloat($('#editRating').value) || '', reviews: parseInt($('#editReviews').value) || '',
@@ -837,6 +908,8 @@
             priceLevel: $('#editPriceLevel').value, notes: $('#editNotes').value.trim(),
             mapsUrl: $('#editMapsUrl').value.trim()
         };
+        placesData[idx] = updatedPlace;
+        dbManager.save(updatedPlace);
         saveData(placesData);
         editModal.classList.remove('active');
         renderTable(searchInput.value);
@@ -860,6 +933,7 @@
     }
 
     $('#exportCSV').addEventListener('click', () => exportData('csv'));
+    $('#exportExcel').addEventListener('click', () => exportData('excel'));
     $('#exportJSON').addEventListener('click', () => exportData('json'));
     $('#exportTXT').addEventListener('click', () => exportData('txt'));
     $('#exportClipboard').addEventListener('click', () => exportData('clipboard'));
@@ -867,6 +941,35 @@
     function exportData(format) {
         placesData = loadData();
         if (placesData.length === 0) { showToast('No data to export', 'warning'); return; }
+        
+        if (format === 'excel') {
+            try {
+                const mappedData = placesData.map(p => ({
+                    'Business Name': p.name,
+                    'Category': p.category || '',
+                    'Rating': p.rating || '',
+                    'Reviews': p.reviews || '',
+                    'Phone': p.phone || '',
+                    'Address': p.address || '',
+                    'Website': p.website || '',
+                    'Hours': p.hours || '',
+                    'Price Level': p.priceLevel || '',
+                    'Latitude': p.latitude || '',
+                    'Longitude': p.longitude || '',
+                    'Maps URL': p.mapsUrl || '',
+                    'Notes': p.notes || ''
+                }));
+                const worksheet = XLSX.utils.json_to_sheet(mappedData);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "MapHarvest Data");
+                XLSX.writeFile(workbook, `mapharvest_${getDateStr()}.xlsx`);
+                showToast(`Exported ${placesData.length} entries as EXCEL`, 'success');
+            } catch (err) {
+                showToast('Excel export failed: ' + err.message, 'error');
+            }
+            return;
+        }
+
         let content, filename, mimeType;
         switch (format) {
             case 'csv':
@@ -933,10 +1036,14 @@
     btnClearAll.addEventListener('click', () => {
         if (placesData.length === 0) { showToast('No data to clear', 'info'); return; }
         if (confirm(`Delete all ${placesData.length} records? This cannot be undone.`)) {
-            localStorage.removeItem(STORAGE_KEY);
-            placesData = [];
-            updateStorageCount(); updateDashboard(); renderTable();
-            showToast('All data cleared', 'success');
+            dbManager.clear().then(() => {
+                placesData = [];
+                saveData(placesData);
+                renderTable();
+                showToast('All data cleared', 'success');
+            }).catch(err => {
+                showToast('Failed to clear database: ' + err.message, 'error');
+            });
         }
     });
 
@@ -1005,9 +1112,20 @@ techfixpro.com`;
     // INIT
     // ═══════════════════════════════════════════
     function init() {
-        updateStorageCount();
-        updateDashboard();
-        renderTable();
+        dbManager.init()
+            .then(() => dbManager.getAll())
+            .then(data => {
+                placesData = data;
+                updateStorageCount();
+                updateDashboard();
+                renderTable();
+            })
+            .catch(err => {
+                showToast('Failed to initialize IndexedDB: ' + err.message, 'error');
+                updateStorageCount();
+                updateDashboard();
+                renderTable();
+            });
 
         // Focus search on load
         setTimeout(() => heroSearchInput.focus(), 300);
