@@ -442,6 +442,21 @@ async function extractDetails(page, url) {
             if (priceMatch) priceLevel = priceMatch[1];
         }
 
+        // Coordinates
+        let latitude = '';
+        let longitude = '';
+        const coordsMatch = placeUrl.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+        if (coordsMatch) {
+            latitude = coordsMatch[1];
+            longitude = coordsMatch[2];
+        } else {
+            const dataMatch = placeUrl.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
+            if (dataMatch) {
+                latitude = dataMatch[1];
+                longitude = dataMatch[2];
+            }
+        }
+
         return {
             id: 'auto_' + Math.random().toString(36).substr(2, 9),
             name,
@@ -453,6 +468,8 @@ async function extractDetails(page, url) {
             website,
             hours,
             priceLevel,
+            latitude,
+            longitude,
             mapsUrl: placeUrl,
             notes: 'Scraped automatically',
             createdAt: new Date().toISOString()
@@ -471,7 +488,7 @@ app.post('/api/download', (req, res) => {
         return;
     }
 
-    const headers = ['Name','Category','Rating','Reviews','Phone','Address','Website','Hours','Price Level','Maps URL','Notes'];
+    const headers = ['Name','Category','Rating','Reviews','Phone','Address','Website','Hours','Price Level','Latitude','Longitude','Maps URL','Notes'];
     const rows = dataList.map(p => {
         const csvEscape = (str) => {
             if (!str) return '';
@@ -492,6 +509,8 @@ app.post('/api/download', (req, res) => {
             csvEscape(p.website),
             csvEscape(p.hours),
             csvEscape(p.priceLevel),
+            p.latitude || '',
+            p.longitude || '',
             csvEscape(p.mapsUrl),
             csvEscape(p.notes)
         ].join(',');

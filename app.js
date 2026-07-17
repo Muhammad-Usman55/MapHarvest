@@ -501,7 +501,7 @@
             id: generateId(),
             name: '', category: '', rating: '', reviews: '',
             phone: '', address: '', website: '', hours: '',
-            priceLevel: '', mapsUrl: '', notes: '',
+            priceLevel: '', latitude: '', longitude: '', mapsUrl: '', notes: '',
             createdAt: new Date().toISOString()
         };
 
@@ -692,6 +692,8 @@
             website: $('#fieldWebsite').value.trim(),
             hours: $('#fieldHours').value.trim(),
             priceLevel: $('#fieldPriceLevel').value,
+            latitude: '',
+            longitude: '',
             mapsUrl: $('#fieldMapsUrl').value.trim(),
             notes: $('#fieldNotes').value.trim(),
             createdAt: new Date().toISOString()
@@ -882,8 +884,22 @@
     }
 
     function generateCSV() {
-        const headers = ['Name','Category','Rating','Reviews','Phone','Address','Website','Hours','Price Level','Maps URL','Notes'];
-        const rows = placesData.map(p => [csvEscape(p.name),csvEscape(p.category),p.rating||'',p.reviews||'',csvEscape(p.phone),csvEscape(p.address),csvEscape(p.website),csvEscape(p.hours),csvEscape(p.priceLevel),csvEscape(p.mapsUrl),csvEscape(p.notes)]);
+        const headers = ['Name','Category','Rating','Reviews','Phone','Address','Website','Hours','Price Level','Latitude','Longitude','Maps URL','Notes'];
+        const rows = placesData.map(p => [
+            csvEscape(p.name),
+            csvEscape(p.category),
+            p.rating || '',
+            p.reviews || '',
+            csvEscape(p.phone),
+            csvEscape(p.address),
+            csvEscape(p.website),
+            csvEscape(p.hours),
+            csvEscape(p.priceLevel),
+            p.latitude || '',
+            p.longitude || '',
+            csvEscape(p.mapsUrl),
+            csvEscape(p.notes)
+        ]);
         return [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
     }
 
