@@ -45,6 +45,7 @@ app.get('/api/scrape', async (req, res) => {
     }
 
     let browser = null;
+    let page = null;
     try {
         sendEvent(res, 'info', 'Launching browser...');
         
@@ -55,10 +56,13 @@ app.get('/api/scrape', async (req, res) => {
                 '--disable-setuid-sandbox',
                 '--disable-dev-shm-usage',
                 '--disable-gpu',
+                '--single-process',
+                '--no-zygote',
                 '--disable-extensions',
                 '--disable-background-networking',
                 '--disable-default-apps',
                 '--disable-sync',
+                '--mute-audio',
                 '--window-size=1280,800'
             ]
         };
@@ -105,15 +109,15 @@ app.get('/api/scrape', async (req, res) => {
         }
 
         const pages = await browser.pages();
-        const page = pages.length > 0 ? pages[0] : await browser.newPage();
+        page = pages.length > 0 ? pages[0] : await browser.newPage();
         await page.setViewport({ width: 1280, height: 800 });
 
-        // Optimize page by blocking images, fonts, media, and third-party trackers/ads
+        // Optimize page by blocking stylesheets, images, fonts, media, and trackers
         await page.setRequestInterception(true);
         page.on('request', (req) => {
             const type = req.resourceType();
             const url = req.url();
-            if (['image', 'font', 'media'].includes(type) || 
+            if (['image', 'font', 'media', 'stylesheet'].includes(type) || 
                 url.includes('google-analytics') || 
                 url.includes('analytics.js') || 
                 url.includes('doubleclick') || 
@@ -294,8 +298,11 @@ app.get('/api/scrape', async (req, res) => {
     } catch (error) {
         sendEvent(res, 'error', `Fatal error during scraping: ${error.message}`);
     } finally {
+        if (page) {
+            try { await page.close(); } catch (e) {}
+        }
         if (browser) {
-            await browser.close();
+            try { await browser.close(); } catch (e) {}
         }
         res.end();
     }
