@@ -54,17 +54,26 @@ app.get('/api/scrape', async (req, res) => {
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
                 '--disable-dev-shm-usage',
+                '--disable-gpu',
                 '--window-size=1280,800'
             ]
         };
 
+        if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+            launchOptions.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+        }
+
         try {
             browser = await puppeteer.launch(launchOptions);
         } catch (e) {
-            sendEvent(res, 'info', 'Default launch failed (Chrome not downloaded). Attempting system browser fallback...');
+            sendEvent(res, 'info', 'Default launch failed. Attempting system browser fallback...');
             
-            // Standard paths on Windows for Chrome and Edge
+            // Standard paths on Windows and Linux for Chrome/Chromium/Edge
             const browserPaths = [
+                '/usr/bin/chromium',
+                '/usr/bin/chromium-browser',
+                '/usr/bin/google-chrome',
+                '/usr/bin/google-chrome-stable',
                 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
                 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
                 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
@@ -87,7 +96,7 @@ app.get('/api/scrape', async (req, res) => {
             }
 
             if (!launched) {
-                throw new Error('Could not find system Chrome or Microsoft Edge installed on default paths. Please install Google Chrome or specify its path in server.js');
+                throw new Error('Could not find system Chrome, Chromium, or Microsoft Edge. Please install Google Chrome or specify its path.');
             }
         }
 
