@@ -212,7 +212,7 @@ app.get('/api/scrape', async (req, res) => {
             }
 
             // Wait for new items to load
-            await new Promise(r => setTimeout(r, 2500));
+            await new Promise(r => setTimeout(r, 10000));
 
             // Check if we hit the bottom
             const atBottom = await page.evaluate(() => {
