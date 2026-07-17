@@ -56,8 +56,6 @@ app.get('/api/scrape', async (req, res) => {
                 '--disable-setuid-sandbox',
                 '--disable-dev-shm-usage',
                 '--disable-gpu',
-                '--single-process',
-                '--no-zygote',
                 '--disable-extensions',
                 '--disable-background-networking',
                 '--disable-default-apps',
@@ -112,12 +110,12 @@ app.get('/api/scrape', async (req, res) => {
         page = pages.length > 0 ? pages[0] : await browser.newPage();
         await page.setViewport({ width: 1280, height: 800 });
 
-        // Optimize page by blocking stylesheets, images, fonts, media, and trackers
+        // Optimize page by blocking images, fonts, media, and trackers
         await page.setRequestInterception(true);
         page.on('request', (req) => {
             const type = req.resourceType();
             const url = req.url();
-            if (['image', 'font', 'media', 'stylesheet'].includes(type) || 
+            if (['image', 'font', 'media'].includes(type) || 
                 url.includes('google-analytics') || 
                 url.includes('analytics.js') || 
                 url.includes('doubleclick') || 
