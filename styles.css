@@ -1042,20 +1042,84 @@ body {
     pointer-events: none;
 }
 .auth-card {
+    position: relative;
     background: var(--bg-card);
     border: 1px solid var(--border-primary);
     border-radius: var(--border-radius);
-    padding: 36px;
+    padding: 40px;
     width: 100%;
-    max-width: 420px;
+    max-width: 440px;
     box-shadow: var(--shadow-lg), var(--shadow-glow);
     backdrop-filter: blur(15px);
     animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-@keyframes scaleUp {
-    from { transform: scale(0.95); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
+
+.auth-card::before {
+    content: '';
+    position: absolute;
+    top: -2px; left: -2px; right: -2px; bottom: -2px;
+    background: linear-gradient(135deg, #ec4899, #8b5cf6, #06b6d4, #ec4899);
+    background-size: 400% 400%;
+    z-index: -1;
+    border-radius: calc(var(--border-radius) + 2px);
+    opacity: 0.45;
+    filter: blur(4px);
+    animation: authBorderSweep 8s linear infinite;
 }
+
+@keyframes authBorderSweep {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes authShake {
+    0%, 100% { transform: translateX(0); }
+    15%, 45%, 75% { transform: translateX(-8px); }
+    30%, 60%, 90% { transform: translateX(8px); }
+}
+
+.auth-card.shake {
+    animation: authShake 0.4s ease-in-out;
+}
+
+/* Input elements with icons styling */
+.input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+.input-with-icon svg {
+    position: absolute;
+    left: 14px;
+    color: var(--text-tertiary);
+    width: 18px;
+    height: 18px;
+    transition: color var(--transition-fast);
+    pointer-events: none;
+    z-index: 2;
+}
+.input-with-icon input {
+    width: 100%;
+    padding: 12px 14px 12px 42px !important;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--border-radius-sm);
+    color: var(--text-primary);
+    outline: none;
+    font-size: 0.95rem;
+    transition: all var(--transition-fast);
+}
+.input-with-icon input:focus {
+    border-color: var(--accent-blue-light);
+    background: rgba(0, 0, 0, 0.35);
+    box-shadow: 0 0 12px var(--accent-blue-glow);
+}
+.input-with-icon input:focus + svg {
+    color: var(--accent-blue-light);
+}
+
 .auth-header {
     text-align: center;
     margin-bottom: 28px;
@@ -1121,4 +1185,74 @@ body {
     margin-top: 24px;
     padding: 12px;
     font-weight: 600;
+}
+
+/* Premium Toast Notifications */
+.toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+.toast {
+    background: var(--bg-card);
+    border: 1px solid var(--border-primary);
+    border-left: 4px solid var(--accent-blue-light);
+    border-radius: var(--border-radius-sm);
+    padding: 14px 20px;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 280px;
+    max-width: 400px;
+    box-shadow: var(--shadow-lg);
+    backdrop-filter: blur(10px);
+    pointer-events: auto;
+    animation: toastSlideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    transition: all 0.3s ease;
+}
+.toast.success { border-left-color: var(--accent-emerald); box-shadow: 0 4px 20px rgba(16, 185, 129, 0.15); }
+.toast.error { border-left-color: var(--accent-rose); box-shadow: 0 4px 20px rgba(244, 63, 94, 0.15); }
+.toast.warning { border-left-color: var(--accent-amber); box-shadow: 0 4px 20px rgba(245, 158, 11, 0.15); }
+.toast.info { border-left-color: var(--accent-cyan); box-shadow: 0 4px 20px rgba(6, 182, 212, 0.15); }
+
+.toast-icon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.toast-icon svg { width: 100%; height: 100%; }
+
+@keyframes toastSlideIn {
+    from {
+        transform: translateY(20px) scale(0.9);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+@keyframes toastSlideOut {
+    from {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(50px) scale(0.9);
+        opacity: 0;
+    }
+}
+.toast.toast-exit {
+    animation: toastSlideOut 0.3s ease forwards;
 }

@@ -1331,12 +1331,28 @@ techfixpro.com`;
         });
     }
 
+    function shakeAuthCard() {
+        const card = $('.auth-card');
+        if (card) {
+            card.classList.remove('shake');
+            void card.offsetWidth; // force browser layout recalculation (reflow)
+            card.classList.add('shake');
+            setTimeout(() => card.classList.remove('shake'), 500);
+        }
+    }
+
     // Forms handling
     if (loginForm) {
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const username = $('#loginUsername').value.trim();
             const password = $('#loginPassword').value;
+
+            if (!username || !password) {
+                showToast('Please enter both username and password', 'error');
+                shakeAuthCard();
+                return;
+            }
 
             fetch('/api/auth/login', {
                 method: 'POST',
@@ -1354,10 +1370,12 @@ techfixpro.com`;
                     $('#loginPassword').value = '';
                 } else {
                     showToast(res.data.error || 'Login failed', 'error');
+                    shakeAuthCard();
                 }
             })
             .catch(err => {
                 showToast('Server connection failed: ' + err.message, 'error');
+                shakeAuthCard();
             });
         });
     }
@@ -1367,6 +1385,17 @@ techfixpro.com`;
             e.preventDefault();
             const username = $('#signupUsername').value.trim();
             const password = $('#signupPassword').value;
+
+            if (username.length < 3) {
+                showToast('Username must be at least 3 characters', 'error');
+                shakeAuthCard();
+                return;
+            }
+            if (password.length < 6) {
+                showToast('Password must be at least 6 characters', 'error');
+                shakeAuthCard();
+                return;
+            }
 
             fetch('/api/auth/signup', {
                 method: 'POST',
@@ -1383,10 +1412,12 @@ techfixpro.com`;
                     $('#signupPassword').value = '';
                 } else {
                     showToast(res.data.error || 'Signup failed', 'error');
+                    shakeAuthCard();
                 }
             })
             .catch(err => {
                 showToast('Server connection failed: ' + err.message, 'error');
+                shakeAuthCard();
             });
         });
     }
