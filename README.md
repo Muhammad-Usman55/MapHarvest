@@ -24,10 +24,10 @@ MapHarvest is a premium, developer-friendly web application designed to scrape b
 │       │              │             │              │              │      │
 │  ┌────┴──────────────┴─────────────┴──────────────┴──────────────┴───┐ │
 │  │                    app.js — Client Logic Layer                     │ │
-│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌───────────────────────┐ │ │
-│  │  │ Auth     │ │ IndexedDB│ │ Toast    │ │ WhatsApp Campaign     │ │ │
-│  │  │ Manager  │ │ Manager  │ │ System   │ │ Manager               │ │ │
-│  │  └──────────┘ └──────────┘ └──────────┘ └───────────────────────┘ │ │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐                            │ │
+│  │  │ Auth     │ │ IndexedDB│ │ Toast    │                            │ │
+│  │  │ Manager  │ │ Manager  │ │ System   │                            │ │
+│  │  └──────────┘ └──────────┘ └──────────┘                            │ │
 │  └───────────────────────────┬───────────────────────────────────────┘ │
 │                              │ REST API + SSE                          │
 └──────────────────────────────┼─────────────────────────────────────────┘
@@ -61,7 +61,6 @@ MapHarvest is a premium, developer-friendly web application designed to scrape b
 | **Frontend** | Client Logic | Vanilla JavaScript (IIFE) | Tab routing, form handling, table rendering, search, sort, bulk operations |
 | **Frontend** | Local DB | IndexedDB (`MapHarvestDB`) | Client-side cache for offline-capable place storage |
 | **Frontend** | Notifications | Custom Toast System | Animated slide-up toasts with pause-on-hover progress bars |
-| **Frontend** | WhatsApp | Campaign Manager | Automated/manual WhatsApp outreach via `web.whatsapp.com` or `wa.me` links |
 | **Backend** | HTTP Server | Express.js v4 | Static file serving, REST API routing, SSE streaming |
 | **Backend** | Scraper | Puppeteer v22 | Headless Chrome/Edge automation for Google Maps data extraction |
 | **Backend** | Auth | `crypto` (PBKDF2) | Token-based session management with salted password hashing |
@@ -264,16 +263,6 @@ The scraper intercepts and blocks the following resource types to maximize speed
 - Filenames automatically match the active search query keyword.
 - Server-side CSV generation via `POST /api/download` for reliable downloads.
 
-### 💬 WhatsApp Campaign Manager
-- Load scraped contacts into a marketing queue.
-- Compose and send personalized messages with template variable support.
-- Two delivery modes:
-  - **WhatsApp Web** (`web.whatsapp.com/send`) — best for PC/laptop.
-  - **WhatsApp App** (`wa.me` redirect) — best for mobile/desktop app.
-- Embedded WhatsApp Web iframe panel (requires CORS extension).
-- Automated campaign loop with 7.5s delivery intervals.
-- Track sent/skipped/invalid contact statuses.
-- Optional Tampermonkey userscript for auto-clicking the send button.
 
 ### 👑 Admin Control Panel
 - Accessible only by admin user (`usman@gmail.com`).
@@ -352,9 +341,9 @@ The scraper intercepts and blocks the following resource types to maximize speed
 google map/
 ├── server.js              # Express backend — Auth, Puppeteer scraper, REST API, SSE streaming
 ├── app.js                 # Client-side logic — IIFE module: auth, IndexedDB, scraper UI,
-│                          #   table rendering, export, WhatsApp campaigns, toast system
+│                          #   table rendering, export, toast system
 ├── index.html             # Single-page dashboard — sidebar nav, tab panels, modals,
-│                          #   auth forms, admin panel, WhatsApp manager, animated backgrounds
+│                          #   auth forms, admin panel, animated backgrounds
 ├── styles.css             # Design system — CSS variables, Light/Dark themes, glassmorphism,
 │                          #   responsive breakpoints, toast animations, mobile card layouts
 ├── package.json           # Node.js manifest — scripts, dependencies, engine requirements
@@ -373,8 +362,8 @@ google map/
 | File | Lines | Size | Role |
 |------|-------|------|------|
 | `server.js` | ~1023 | 39 KB | Express server, PBKDF2 auth, Puppeteer scraper engine, SSE streaming, admin middleware, file-based persistence, CSV download generation |
-| `app.js` | ~2098 | 93 KB | Client IIFE: IndexedDB manager, tab navigation, search & scrape UI with live terminal, data table with sort/filter/bulk ops, export to 4 formats, WhatsApp campaign manager with auto-loop, notification toasts |
-| `index.html` | ~1093 | 74 KB | 7 tab panels (Search & Collect, Paste & Extract, Manual Entry, Data Table, Export, WhatsApp, Admin), authentication modals (Login/Signup/Recover), edit modal, sidebar with theme toggle |
+| `app.js` | ~1720 | 72 KB | Client IIFE: IndexedDB manager, tab navigation, search & scrape UI with live terminal, data table with sort/filter/bulk ops, export to 4 formats, notification toasts |
+| `index.html` | ~880 | 56 KB | 6 tab panels (Search & Collect, Paste & Extract, Manual Entry, Data Table, Export, Admin), authentication modals (Login/Signup/Recover), edit modal, sidebar with theme toggle |
 | `styles.css` | ~1340 | 52 KB | CSS custom properties (40+ tokens), Light/Dark theme overrides, animated background glows, glassmorphism cards, responsive mobile card transforms, scrollbar styling, toast animations |
 
 ---
