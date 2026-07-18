@@ -1,20 +1,32 @@
 # 📍 MapHarvest — Automated Google Maps Data Extractor
 
 **Owner & Developer:** Muhammad Usman Shahid
+**Default Admin Credentials:** Gmail `usman` (or `usman@gmail.com`) / Password `@oZhQ95X`
 
-MapHarvest is a premium, local-first, developer-friendly web application designed to scrape business details from Google Maps **completely automatically and without needing any API key**.
-
-It launches a local headless browser session, automates the search query, scrolls to gather listings, visits each business profile, extracts key details, and saves them in local storage.
+MapHarvest is a premium, developer-friendly web application designed to scrape business details from Google Maps **completely automatically and without needing any API key**. It runs a local headless browser session, automates searches, scrolls through listings, extracts business details, saves records directly to server-side JSON databases, and syncs states across devices.
 
 ---
 
 ## ✨ Features
 
-- **🚀 100% Automated Extraction**: No manual copying or browser extensions. Just input a query and watch the scraper do the work.
-- **💻 Live Scraper Terminal**: A monospace visual console built directly into the web dashboard that streams live updates (using Server-Sent Events) of exactly what the browser is doing.
-- **📊 Premium Analytics Dashboard**: View metrics like total scraped entries, average rating, and counts of businesses with available phone numbers or websites.
-- **📋 Interactive Data Management**: Sort, filter, search, manually add, edit, or bulk delete records inside a beautiful dark-themed data table.
-- **📂 Flexible Export Formats**: Export your cumulative records to CSV, JSON, TXT, or copy directly to your clipboard.
+- **🚀 100% Automated Scraping**: Just input a search term and watch MapHarvest scroll, collect, and extract details automatically.
+- **☁️ Multi-User Authentication & DB Sync**:
+  - Secure Gmail-based Signup and Login with salted PBKDF2 hashing.
+  - Password recovery using case-insensitive security questions.
+  - Automatic real-time syncing of client-side IndexedDB databases with local server-side files (stored in `data/<username>_places.json`).
+  - Total database isolation: users can only view, edit, or delete their own data.
+- **👑 Admin Control Panel**:
+  - Log in with Admin Usman credentials (`usman@gmail.com` / `@oZhQ95X`).
+  - View real-time system stats (registered users, tracked actions, and node statuses).
+  - Inspect the **Registered Users registry table**.
+  - Monitor the **User Activities log grid** displaying active action types, query details, client IP addresses, browser types, and device configurations (Mobile/Tablet/Desktop).
+- **🌓 Dual-Theme Support**: Toggle between Dark Mode and a beautifully polished **Default Light Theme** layout using the sidebar button.
+- **📱 Responsive Mobile Cards**: Data tables automatically transform into touch-friendly vertical card lists on screen widths `<= 768px` for premium mobile usability.
+- **🔔 Animated Notification Toasts**:
+  - Springy slide-up entry animations.
+  - Colorful remaining lifetime linear progress bars (emerald for success, rose for error, amber for warning, cyan for info).
+  - **Pause-on-Hover**: Hovering your mouse over the toast stops the timer and halts the progress bar, resuming automatically on mouse exit.
+- **📥 Smart Export Filename Downloads**: Downloads generated CSV, Excel, JSON, and TXT files directly matching the name of your active search query keyword.
 
 ---
 
@@ -32,26 +44,23 @@ It launches a local headless browser session, automates the search query, scroll
 
 Follow these simple steps to run MapHarvest on your local computer:
 
-### Step 1: Open the Project Folder
-Open your terminal (Command Prompt, PowerShell, or Git Bash) and navigate to the project directory:
+### Step 1: Navigate to the Project Folder
+Open your terminal and enter the project folder directory:
 ```bash
 cd "d:\google map"
 ```
 
 ### Step 2: Install Dependencies
-Install the required packages (`express`, `cors`, and `puppeteer`):
+Install all required Node modules (`express`, `cors`, and `puppeteer`):
 ```bash
 npm install
 ```
-*(Note: If you run into network timeout warnings, don't worry! MapHarvest automatically searches your system for Google Chrome or Microsoft Edge as a fallback).*
 
 ### Step 3: Start the MapHarvest Server
-Launch the backend crawler and static server:
+Launch the backend server:
 ```bash
 npm start
 ```
-*(or run `node server.js`)*
-
 You will see the confirmation message:
 ```text
 ================================================================
@@ -65,33 +74,13 @@ Open your web browser and navigate to:
 
 ---
 
-## 🔍 How to Scrape Data
+## 📂 Project Structure
 
-1. Open the dashboard at `http://localhost:3000`.
-2. Enter your keyword (e.g., `coffee shop in Paris` or `dental clinic`) in the search bar.
-3. Click **Auto Scrape**.
-4. Watch the **Live Terminal** print logs in real-time.
-
-## ☁️ Deploying to Render.com
-
-MapHarvest is pre-configured for automated production deployment on Render.com using the included `Dockerfile` and `render.yaml` blueprint.
-
-### One-Click Deploy Steps:
-1. Create a repository on your GitHub account and push these MapHarvest project files.
-2. Sign in to your [Render.com](https://render.com) dashboard.
-3. Click **New +** and select **Blueprint**.
-4. Link your GitHub account and select your MapHarvest repository.
-5. Render will automatically parse the `render.yaml` file, build the Alpine Docker container, install Chromium with all its required font/system libraries, and launch your server!
-
----
-
-## 📁 Project Structure
-
-- `server.js` — Express backend and Puppeteer browser automation crawler.
-- `app.js` — Client-side EventSource SSE listeners, rendering, sorting, and LocalStorage persistence.
-- `index.html` — Glassmorphism dark-theme layout dashboard interface.
-- `styles.css` — Modern UI stylesheet, custom terminal pane, custom loader bar, and responsive grids.
-- `package.json` — Declares Node dependencies and startup scripts.
-- `requirements.txt` — Detailed listing of system, browser, OS libraries, and software environment requirements.
-- `Dockerfile` — Custom Alpine-based Docker container configuration containing system Chrome dependencies.
-- `render.yaml` — Blueprint infrastructure-as-code file for one-click Render.com deployment.
+- `server.js` — Express backend and Puppeteer browser crawler. Seeds the admin account, protects admin endpoints via middleware, logs activities, and hosts place sync routes.
+- `app.js` — Client-side logic: manages logins/signups, IndexedDB local database transactions, search query filename downloads, hover notification timeouts, and responsive table morphing.
+- `index.html` — Responsive dashboard interface, sidebar toggle buttons, authentication modal cards, and admin stats layouts.
+- `styles.css` — CSS variables supporting default Light Theme, override Dark Theme, notification progress bars, and mobile card rules.
+- `package.json` — Node script declarations and dependency list.
+- `requirements.txt` — Detailed list of browser libraries and server requirements.
+- `Dockerfile` — Production Alpine container configuration.
+- `render.yaml` — Blueprint infrastructure blueprint for Render.com.
