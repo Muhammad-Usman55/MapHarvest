@@ -493,6 +493,19 @@ app.get('/api/scrape', authenticate, async (req, res) => {
                 sendEvent(res, 'info', `Redirected directly to single business page: ${singleName}`);
                 const singlePlace = await extractDetails(page, page.url());
                 if (singlePlace) {
+                    // Auto-save directly to server-side database for this user
+                    try {
+                        const list = loadUserPlaces(req.username);
+                        const exists = list.some(p => p.name.toLowerCase() === singlePlace.name.toLowerCase());
+                        if (!exists) {
+                            list.push(singlePlace);
+                            saveUserPlaces(req.username, list);
+                            logActivity(req.username, 'place-save', `Scraper auto-saved business "${singlePlace.name}"`, req);
+                        }
+                    } catch (e) {
+                        console.error('Error auto-saving place on server:', e);
+                    }
+
                     sendEvent(res, 'place', 'Extracted 1 business from direct match', singlePlace);
                     sendEvent(res, 'success', 'Scraping completed successfully.', [singlePlace]);
                 } else {
@@ -621,6 +634,19 @@ app.get('/api/scrape', authenticate, async (req, res) => {
 
                 const placeDetails = await extractDetails(page, url);
                 if (placeDetails && placeDetails.name) {
+                    // Auto-save directly to server-side database for this user
+                    try {
+                        const list = loadUserPlaces(req.username);
+                        const exists = list.some(p => p.name.toLowerCase() === placeDetails.name.toLowerCase());
+                        if (!exists) {
+                            list.push(placeDetails);
+                            saveUserPlaces(req.username, list);
+                            logActivity(req.username, 'place-save', `Scraper auto-saved business "${placeDetails.name}"`, req);
+                        }
+                    } catch (e) {
+                        console.error('Error auto-saving place on server:', e);
+                    }
+
                     sendEvent(res, 'place', `Scraped: ${placeDetails.name}`, placeDetails);
                 } else {
                     sendEvent(res, 'warning', `Could not extract details for listing at index ${i + 1}`);
