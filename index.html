@@ -78,6 +78,14 @@
                 </svg>
                 <span>Export</span>
             </a>
+            <a href="#" class="nav-item" data-tab="admin" id="nav-admin" style="display: none; border-left-color: var(--accent-rose);">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    <circle cx="12" cy="16" r="1"/>
+                </svg>
+                <span style="color: var(--accent-rose); font-weight: 700;">Admin Panel</span>
+            </a>
         </nav>
 
         <div class="sidebar-footer">
@@ -616,6 +624,100 @@
             <div class="export-preview-section">
                 <h3>Data Preview</h3>
                 <pre class="export-preview" id="exportPreview">No data to preview. Extract or add data first.</pre>
+            </div>
+        </section>
+
+        <!-- ==================== ADMIN PANEL TAB ==================== -->
+        <section id="tab-admin" class="tab-content">
+            <div class="hero-section">
+                <h1>Administrator Control Center</h1>
+                <p>Track user activities, sessions, and system metrics in real time.</p>
+            </div>
+
+            <!-- Admin Stats Cards -->
+            <div class="stats-grid" style="margin-bottom: 30px;">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(236,72,153,0.15); color: #ec4899;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="adminStatUsers">0</span>
+                        <span class="stat-label">Total Registered Users</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(139,92,246,0.15); color: #8b5cf6;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="adminStatActivities">0</span>
+                        <span class="stat-label">Total Actions Tracked</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(6,182,212,0.15); color: #06b6d4;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="adminStatSystem">Online</span>
+                        <span class="stat-label">Scraper Node Status</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Section Grid: Users & Logs -->
+            <div style="display: grid; grid-template-columns: 1fr; gap: 30px;">
+                <!-- Registered Users List -->
+                <div class="dashboard-card" style="padding: 24px;">
+                    <h3 style="margin-top: 0; margin-bottom: 16px; font-size: 1.15rem; display: flex; align-items: center; gap: 8px; color: var(--accent-blue-light);">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                        Registered Users Accounts
+                    </h3>
+                    <div class="table-wrapper" style="max-height: 250px; overflow-y: auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>User Name</th>
+                                    <th>Gmail Address</th>
+                                    <th>Created At</th>
+                                    <th>Privilege</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminUsersBody">
+                                <tr>
+                                    <td colspan="4" style="text-align: center; color: var(--text-tertiary);">Loading user registry...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Live Tracked Activities Log -->
+                <div class="dashboard-card" style="padding: 24px;">
+                    <h3 style="margin-top: 0; margin-bottom: 16px; font-size: 1.15rem; display: flex; align-items: center; gap: 8px; color: var(--accent-blue-light);">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                        Tracked User Activities
+                    </h3>
+                    <div class="table-wrapper" style="max-height: 350px; overflow-y: auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>User Gmail</th>
+                                    <th>Action</th>
+                                    <th>Details</th>
+                                    <th>Device Type</th>
+                                    <th>IP Address</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminActivitiesBody">
+                                <tr>
+                                    <td colspan="6" style="text-align: center; color: var(--text-tertiary);">Loading activities log...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </section>
     </main>

@@ -189,6 +189,7 @@
         sidebar.classList.remove('open');
         if (tabId === 'data') renderTable();
         if (tabId === 'export') updateExportPreview();
+        if (tabId === 'admin') loadAdminPanel();
     }
 
     navItems.forEach(item => {
@@ -1170,6 +1171,7 @@ techfixpro.com`;
     // ═══════════════════════════════════════════
     const TOKEN_KEY = 'mapharvest_token';
     const USERNAME_KEY = 'mapharvest_username';
+    const ADMIN_KEY = 'mapharvest_is_admin';
 
     const authOverlay = $('#authOverlay');
     const tabBtnLogin = $('#tabBtnLogin');
@@ -1197,10 +1199,14 @@ techfixpro.com`;
             })
             .then(res => {
                 if (res.status === 200) {
-                    showApp(username);
-                } else {
-                    logout(true); // Token expired/invalid
+                    return res.json();
                 }
+                logout(true);
+                throw new Error('Session invalid');
+            })
+            .then(data => {
+                localStorage.setItem(ADMIN_KEY, data.isAdmin ? 'true' : 'false');
+                showApp(username);
             })
             .catch(() => {
                 // Trust token locally for offline resilience
@@ -1218,6 +1224,13 @@ techfixpro.com`;
             userDisplay.textContent = username;
             userAvatar.textContent = username.charAt(0).toUpperCase();
         }
+
+        const isAdmin = localStorage.getItem(ADMIN_KEY) === 'true';
+        const navAdmin = $('#nav-admin');
+        if (navAdmin) {
+            navAdmin.style.display = isAdmin ? 'flex' : 'none';
+        }
+
         syncFromServer(username);
     }
 
@@ -1311,6 +1324,7 @@ techfixpro.com`;
         }
         localStorage.removeItem(TOKEN_KEY);
         localStorage.removeItem(USERNAME_KEY);
+        localStorage.removeItem(ADMIN_KEY);
         placesData = [];
         dbManager.clear().then(() => {
             updateStorageCount();
@@ -1395,6 +1409,7 @@ techfixpro.com`;
                 if (res.status === 200) {
                     localStorage.setItem(TOKEN_KEY, res.data.token);
                     localStorage.setItem(USERNAME_KEY, res.data.username);
+                    localStorage.setItem(ADMIN_KEY, res.data.isAdmin ? 'true' : 'false');
                     showApp(res.data.username);
                     showToast(`Welcome back!`, 'success');
                     $('#loginGmail').value = '';
@@ -1548,6 +1563,81 @@ techfixpro.com`;
 
     if (btnLogout) {
         btnLogout.addEventListener('click', () => logout());
+    }
+
+    function loadAdminPanel() {
+        const token = localStorage.getItem(TOKEN_KEY);
+        if (!token) return;
+
+        // Fetch Stats
+        fetch('/api/admin/stats', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        })
+        .then(res => res.json())
+        .then(stats => {
+            $('#adminStatUsers').textContent = stats.totalUsers || 0;
+            $('#adminStatActivities').textContent = stats.totalActivities || 0;
+            $('#adminStatSystem').textContent = stats.systemStatus || 'Online';
+        })
+        .catch(err => console.error('Failed to load admin stats:', err));
+
+        // Fetch Users
+        fetch('/api/admin/users', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        })
+        .then(res => {
+            if (res.status === 403) throw new Error('Forbidden');
+            return res.json();
+        })
+        .then(usersList => {
+            const body = $('#adminUsersBody');
+            if (usersList.length === 0) {
+                body.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-tertiary);">No users registered</td></tr>`;
+                return;
+            }
+            body.innerHTML = usersList.map(u => `
+                <tr>
+                    <td style="font-weight: 600; color: var(--text-primary);">${escapeHtml(u.username)}</td>
+                    <td>${escapeHtml(u.gmail)}</td>
+                    <td>${new Date(u.createdAt).toLocaleString()}</td>
+                    <td><span style="padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; background: ${u.isAdmin ? 'var(--accent-rose)' : 'var(--accent-blue-light)'}; color: white;">${u.isAdmin ? 'Admin' : 'User'}</span></td>
+                </tr>
+            `).join('');
+        })
+        .catch(err => {
+            console.error('Failed to load users list:', err);
+            $('#adminUsersBody').innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--accent-rose);">Access denied or failed to load.</td></tr>`;
+        });
+
+        // Fetch Activities
+        fetch('/api/admin/activities', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        })
+        .then(res => {
+            if (res.status === 403) throw new Error('Forbidden');
+            return res.json();
+        })
+        .then(logs => {
+            const body = $('#adminActivitiesBody');
+            if (logs.length === 0) {
+                body.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-tertiary);">No activities recorded</td></tr>`;
+                return;
+            }
+            body.innerHTML = logs.map(log => `
+                <tr>
+                    <td style="font-weight: 600;">${escapeHtml(log.gmail)}</td>
+                    <td><span style="font-family: monospace; font-size: 0.8rem; font-weight: 700; color: var(--accent-blue-light);">${escapeHtml(log.action.toUpperCase())}</span></td>
+                    <td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(log.details)}">${escapeHtml(log.details)}</td>
+                    <td>${escapeHtml(log.device)}</td>
+                    <td><span style="font-family: monospace; font-size: 0.8rem;">${escapeHtml(log.ip)}</span></td>
+                    <td style="font-size: 0.8rem;">${new Date(log.timestamp).toLocaleString()}</td>
+                </tr>
+            `).join('');
+        })
+        .catch(err => {
+            console.error('Failed to load activities log:', err);
+            $('#adminActivitiesBody').innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--accent-rose);">Access denied or failed to load.</td></tr>`;
+        });
     }
 
     // ═══════════════════════════════════════════

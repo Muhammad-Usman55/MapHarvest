@@ -4,5 +4,16 @@
     "salt": "21fd30f6608a04575517ae3339d10e1d",
     "hash": "a0c40835084343e6e72b696c8757ce50e6620e8a690e755b6dcac01cdc27d4453dd73bff3b6bc8c3319a0af87e76b4c98850ce2edb1071d6e1cb4ab1c591c9b7",
     "createdAt": "2026-07-18T08:08:08.026Z"
+  },
+  "usman@gmail.com": {
+    "gmail": "usman@gmail.com",
+    "username": "Usman (Admin)",
+    "salt": "16c3b733e702a950a29beab8833d69b3",
+    "hash": "4252d69959e389dedf782c63d64f5cd1ca893821aad2cc113fca1d5bb99b5f47f65038d42c80771d284f0e994e342f262827b00d3292a2cd6e76b7d251501038",
+    "securityQuestion": "Admin Account",
+    "answerSalt": "2d9f64589ad5469e3fdf2c3844c598c9",
+    "answerHash": "d294651433156c63b99328748ac49588a8f2a3fbe16f32da3d8b52f75a5adc837634285ba44730e340df13abafbf3fcbe178eca1b0c416d883f0c0ae6d1f1ffb",
+    "isAdmin": true,
+    "createdAt": "2026-07-18T08:34:23.841Z"
   }
 }

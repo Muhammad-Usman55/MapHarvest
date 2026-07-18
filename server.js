@@ -18,6 +18,56 @@ const USERS_FILE = path.join(__dirname, 'users.json');
 let users = {};
 let activeTokens = new Map(); // token -> username
 
+const DATA_DIR = path.join(__dirname, 'data');
+if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR);
+}
+const ACTIVITIES_FILE = path.join(DATA_DIR, 'activities.json');
+
+function logActivity(gmail, action, details, req) {
+    try {
+        let logs = [];
+        if (fs.existsSync(ACTIVITIES_FILE)) {
+            try {
+                logs = JSON.parse(fs.readFileSync(ACTIVITIES_FILE, 'utf8'));
+            } catch (e) {
+                logs = [];
+            }
+        }
+        const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'Unknown';
+        const userAgent = req.headers['user-agent'] || 'Unknown';
+        
+        let device = 'Desktop';
+        if (/mobile/i.test(userAgent)) device = 'Mobile';
+        else if (/tablet/i.test(userAgent)) device = 'Tablet';
+        
+        let browser = 'Unknown';
+        if (/chrome|crios/i.test(userAgent)) browser = 'Chrome';
+        else if (/firefox|fxios/i.test(userAgent)) browser = 'Firefox';
+        else if (/safari/i.test(userAgent) && !/chrome/i.test(userAgent)) browser = 'Safari';
+        else if (/opr/i.test(userAgent)) browser = 'Opera';
+        else if (/edg/i.test(userAgent)) browser = 'Edge';
+
+        logs.push({
+            gmail,
+            action,
+            details,
+            ip,
+            device: `${device} (${browser})`,
+            userAgent,
+            timestamp: new Date().toISOString()
+        });
+        
+        if (logs.length > 1000) {
+            logs = logs.slice(logs.length - 1000);
+        }
+        
+        fs.writeFileSync(ACTIVITIES_FILE, JSON.stringify(logs, null, 2), 'utf8');
+    } catch (e) {
+        console.error('Error logging activity:', e);
+    }
+}
+
 // Load users from file
 function loadUsers() {
     try {
@@ -25,6 +75,31 @@ function loadUsers() {
             users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
         } else {
             users = {};
+            saveUsers();
+        }
+
+        // Pre-seed admin user "usman" if not exists
+        const adminGmail = 'usman@gmail.com';
+        const normAdmin = adminGmail.toLowerCase();
+        if (!users[normAdmin]) {
+            const adminSalt = crypto.randomBytes(16).toString('hex');
+            const adminHash = hashPassword('@oZhQ95X', adminSalt);
+            
+            const question = 'Admin Account';
+            const answerSalt = crypto.randomBytes(16).toString('hex');
+            const answerHash = hashPassword('admin', answerSalt);
+
+            users[normAdmin] = {
+                gmail: adminGmail,
+                username: 'Usman (Admin)',
+                salt: adminSalt,
+                hash: adminHash,
+                securityQuestion: question,
+                answerSalt,
+                answerHash,
+                isAdmin: true,
+                createdAt: new Date().toISOString()
+            };
             saveUsers();
         }
     } catch (e) {
@@ -114,6 +189,8 @@ app.post('/api/auth/signup', (req, res) => {
     };
     saveUsers();
 
+    logActivity(gmail, 'signup', `Registered user "${username}"`, req);
+
     res.json({ message: 'User registered successfully! Please login.' });
 });
 
@@ -123,7 +200,12 @@ app.post('/api/auth/login', (req, res) => {
         return res.status(400).json({ error: 'Gmail address and password are required.' });
     }
 
-    const normGmail = gmail.trim().toLowerCase();
+    // Support inputting 'usman' directly for easy admin login
+    let checkGmail = gmail.trim();
+    if (checkGmail.toLowerCase() === 'usman') {
+        checkGmail = 'usman@gmail.com';
+    }
+    const normGmail = checkGmail.toLowerCase();
     const user = users[normGmail];
     if (!user) {
         return res.status(401).json({ error: 'Invalid Gmail address or password.' });
@@ -138,7 +220,9 @@ app.post('/api/auth/login', (req, res) => {
     const token = crypto.randomBytes(32).toString('hex');
     activeTokens.set(token, user.gmail); // Use email as the identifier
 
-    res.json({ token, username: user.username });
+    logActivity(user.gmail, 'login', `User logged in (Browser: ${req.headers['user-agent'] ? req.headers['user-agent'].substring(0, 30) : 'Unknown'})`, req);
+
+    res.json({ token, username: user.username, isAdmin: !!user.isAdmin });
 });
 
 // Recover security question endpoint
@@ -152,6 +236,9 @@ app.post('/api/auth/recover-question', (req, res) => {
     if (!user) {
         return res.status(404).json({ error: 'No account registered with this Gmail.' });
     }
+    
+    logActivity(user.gmail, 'recover-request', 'Requested security question', req);
+    
     res.json({ securityQuestion: user.securityQuestion });
 });
 
@@ -170,6 +257,7 @@ app.post('/api/auth/reset-password', (req, res) => {
 
     const checkAnswerHash = hashPassword(securityAnswer.trim().toLowerCase(), user.answerSalt);
     if (checkAnswerHash !== user.answerHash) {
+        logActivity(user.gmail, 'reset-fail', 'Failed answer matching on password reset', req);
         return res.status(401).json({ error: 'Incorrect security answer.' });
     }
 
@@ -180,6 +268,8 @@ app.post('/api/auth/reset-password', (req, res) => {
     user.salt = newSalt;
     user.hash = newHash;
     saveUsers();
+
+    logActivity(user.gmail, 'password-reset', 'Successfully reset account password', req);
 
     res.json({ message: 'Password has been reset successfully! Please login.' });
 });
@@ -208,6 +298,60 @@ app.post('/api/auth/logout', authenticate, (req, res) => {
     res.json({ message: 'Logged out successfully.' });
 });
 
+// Middleware to verify Administrator rights
+function requireAdmin(req, res, next) {
+    authenticate(req, res, () => {
+        const normGmail = req.username ? req.username.toLowerCase() : '';
+        const user = users[normGmail];
+        if (!user || !user.isAdmin) {
+            return res.status(403).json({ error: 'Access denied. Administrator privileges required.' });
+        }
+        next();
+    });
+}
+
+// Admin Panel API Endpoints
+app.get('/api/admin/stats', requireAdmin, (req, res) => {
+    let activitiesCount = 0;
+    try {
+        if (fs.existsSync(ACTIVITIES_FILE)) {
+            const logs = JSON.parse(fs.readFileSync(ACTIVITIES_FILE, 'utf8'));
+            activitiesCount = logs.length;
+        }
+    } catch (e) {}
+
+    res.json({
+        totalUsers: Object.keys(users).length,
+        totalActivities: activitiesCount,
+        systemStatus: 'Online'
+    });
+});
+
+app.get('/api/admin/users', requireAdmin, (req, res) => {
+    // Format users for the admin display (filtering out secure fields)
+    const usersList = Object.keys(users).map(email => {
+        const u = users[email];
+        return {
+            username: u.username,
+            gmail: u.gmail,
+            createdAt: u.createdAt || 'Unknown',
+            isAdmin: !!u.isAdmin
+        };
+    });
+    res.json(usersList);
+});
+
+app.get('/api/admin/activities', requireAdmin, (req, res) => {
+    let logs = [];
+    try {
+        if (fs.existsSync(ACTIVITIES_FILE)) {
+            logs = JSON.parse(fs.readFileSync(ACTIVITIES_FILE, 'utf8'));
+        }
+    } catch (e) {}
+    // Return logs sorted by most recent first
+    res.json(logs.reverse());
+});
+
 // Scrape endpoint (Streams progress updates using Server-Sent Events - Protected by authenticate)
 app.get('/api/scrape', authenticate, async (req, res) => {
     const query = req.query.query;
@@ -221,6 +365,8 @@ app.get('/api/scrape', authenticate, async (req, res) => {
         res.status(400).json({ error: 'Query parameter is required' });
         return;
     }
+
+    logActivity(req.username, 'scrape', `Launched scraper for query "${query}" (Limit: ${scrapeAll ? 'Unlimited' : limit})`, req);
 
     // Set headers for Server-Sent Events (SSE)
     res.writeHead(200, {
@@ -707,6 +853,8 @@ app.post('/api/download', authenticate, (req, res) => {
         return;
     }
 
+    logActivity(req.username, 'download', `Downloaded CSV report for query "${query}" (${dataList.length} rows)`, req);
+
     const headers = ['Name','Category','Rating','Reviews','Phone','Address','Website','Hours','Price Level','Latitude','Longitude','Email','Maps URL','Notes'];
     const rows = dataList.map(p => {
         const csvEscape = (str) => {
@@ -744,11 +892,6 @@ app.post('/api/download', authenticate, (req, res) => {
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     res.send(csvContent);
 });
-
-const DATA_DIR = path.join(__dirname, 'data');
-if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR);
-}
 
 // Get user places file path
 function getUserPlacesPath(username) {
@@ -794,8 +937,10 @@ app.post('/api/places', authenticate, (req, res) => {
     const idx = list.findIndex(p => p.id === place.id);
     if (idx > -1) {
         list[idx] = place; // update
+        logActivity(req.username, 'place-update', `Updated business profile "${place.name}"`, req);
     } else {
         list.push(place); // insert
+        logActivity(req.username, 'place-save', `Created new business profile "${place.name}"`, req);
     }
     saveUserPlaces(req.username, list);
     res.json({ message: 'Saved successfully' });
@@ -809,6 +954,7 @@ app.put('/api/places/:id', authenticate, (req, res) => {
     if (idx > -1) {
         list[idx] = { ...list[idx], ...place };
         saveUserPlaces(req.username, list);
+        logActivity(req.username, 'place-edit', `Modified profile details for "${place.name || id}"`, req);
         res.json({ message: 'Updated successfully' });
     } else {
         res.status(404).json({ error: 'Place not found' });
@@ -818,8 +964,10 @@ app.put('/api/places/:id', authenticate, (req, res) => {
 app.delete('/api/places/:id', authenticate, (req, res) => {
     const { id } = req.params;
     let list = loadUserPlaces(req.username);
+    const place = list.find(p => p.id === id);
     list = list.filter(p => p.id !== id);
     saveUserPlaces(req.username, list);
+    logActivity(req.username, 'place-delete', `Deleted business profile "${place ? place.name : id}"`, req);
     res.json({ message: 'Deleted successfully' });
 });
 
@@ -831,11 +979,13 @@ app.post('/api/places/bulk-delete', authenticate, (req, res) => {
     let list = loadUserPlaces(req.username);
     list = list.filter(p => !ids.includes(p.id));
     saveUserPlaces(req.username, list);
+    logActivity(req.username, 'places-bulk-delete', `Bulk deleted ${ids.length} entries`, req);
     res.json({ message: 'Bulk deletion successfully completed' });
 });
 
 app.post('/api/places/clear', authenticate, (req, res) => {
     saveUserPlaces(req.username, []);
+    logActivity(req.username, 'places-clear', 'Wiped entire places database', req);
     res.json({ message: 'Clear database successfully completed' });
 });
 
