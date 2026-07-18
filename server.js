@@ -358,7 +358,7 @@ app.get('/api/scrape', authenticate, async (req, res) => {
     let limit = parseInt(req.query.limit);
     const scrapeAll = isNaN(limit) || limit <= 0;
     if (scrapeAll) {
-        limit = 1000; // Scrape all results if limit is 0 or unset
+        limit = 50000; // Scrape all results if limit is 0 or unset (unlimited)
     }
 
     if (!query) {
@@ -553,7 +553,7 @@ app.get('/api/scrape', authenticate, async (req, res) => {
         let noNewItemsCount = 0; // count consecutive scrolls with no new items
 
         // Scroll the results list to gather listing URLs
-        while (placeUrls.size < limit && scrollAttempts < 150) {
+        while (placeUrls.size < limit && scrollAttempts < 5000) {
             // Gather all listing URLs in the feed
             const urls = await page.evaluate(() => {
                 const links = Array.from(document.querySelectorAll('a[href*="/maps/place/"]'));
