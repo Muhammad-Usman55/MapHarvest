@@ -376,5 +376,23 @@
     "device": "Desktop (Chrome)",
     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
     "timestamp": "2026-07-18T08:41:08.689Z"
+  },
+  {
+    "gmail": "usman@gmail.com",
+    "action": "login",
+    "details": "User logged in (Browser: Mozilla/5.0 (Windows NT 10.0; )",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:44:52.695Z"
+  },
+  {
+    "gmail": "usman@gmail.com",
+    "action": "scrape",
+    "details": "Launched scraper for query \"dentist in lahore\" (Limit: Unlimited)",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:45:03.147Z"
   }
 ]

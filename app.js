@@ -1368,6 +1368,12 @@ techfixpro.com`;
             updateDashboard();
             renderTable();
         });
+        
+        // Reset and clear all login, signup, and recovery form text values
+        if (loginForm) loginForm.reset();
+        if (signupForm) signupForm.reset();
+        if (recoverForm) recoverForm.reset();
+
         showAuth();
         if (!silent) showToast('Logged out successfully', 'info');
     }
