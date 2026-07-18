@@ -726,6 +726,52 @@
                             <button type="button" class="btn btn-ghost btn-sm" id="btnWaSkipNext">Skip</button>
                         </div>
                     </div>
+                <!-- Auto-Send UserScript Helper -->
+                <div class="form-container" style="grid-column: 1 / -1; margin-top: 24px; border-color: rgba(99, 102, 241, 0.25); background: rgba(99, 102, 241, 0.03);">
+                    <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 1.1rem; color: var(--accent-blue-light); display: flex; align-items: center; gap: 8px;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6Z"/></svg>
+                        Enable 100% Fully Automated Sending (Zero Clicks)
+                    </h3>
+                    <p style="font-size: 0.84rem; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.5;">
+                        To configure MapHarvest to automatically send messages and close tabs for you without any manual input:
+                    </p>
+                    <ol style="font-size: 0.84rem; color: var(--text-secondary); margin-left: 20px; margin-bottom: 16px; line-height: 1.6;">
+                        <li>Install a browser extension like **Tampermonkey** or **Violentmonkey**.</li>
+                        <li>Create a new script, paste the code box content below, and save it.</li>
+                        <li>Toggle **Auto-advance** on and click **Open Next Chat** to initiate hands-free automated sending loops!</li>
+                    </ol>
+                    <div style="position: relative;">
+                        <textarea readonly style="width: 100%; height: 160px; background: rgba(0,0,0,0.3); color: var(--text-muted); border: 1px solid var(--border-primary); border-radius: var(--border-radius-sm); padding: 12px; font-family: monospace; font-size: 0.75rem; resize: none; outline: none; line-height: 1.5;" id="txtUserScript">// ==UserScript==
+// @name         MapHarvest WhatsApp Auto-Sender
+// @namespace    http://tampermonkey.net/
+// @version      1.1
+// @description  Auto-clicks send button on WhatsApp Web for MapHarvest campaigns
+// @match        https://web.whatsapp.com/*
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+    setInterval(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('autoclick') === 'true') {
+            let sendBtn = document.querySelector('span[data-icon="send"]') || document.querySelector('button[aria-label="Send"]');
+            if (sendBtn) {
+                if (sendBtn.tagName !== 'BUTTON') {
+                    sendBtn = sendBtn.closest('button');
+                }
+                if (sendBtn && !sendBtn.disabled) {
+                    sendBtn.click();
+                    setTimeout(() => {
+                        window.close();
+                    }, 2500); // Delay to let message deliver, then close tab
+                }
+            }
+        }
+    }, 1500);
+})();</textarea>
+                        <button type="button" class="btn btn-ghost btn-sm" id="btnCopyUserScript" style="position: absolute; right: 10px; bottom: 15px; background: var(--bg-card);">Copy Script</button>
+                    </div>
                 </div>
             </div>
         </section>

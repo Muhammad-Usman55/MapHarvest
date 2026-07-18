@@ -1796,9 +1796,9 @@ techfixpro.com`;
         
         let url = '';
         if (method === 'web') {
-            url = `https://web.whatsapp.com/send?phone=${encodeURIComponent(cleanedPhone)}&text=${encodeURIComponent(message)}`;
+            url = `https://web.whatsapp.com/send?phone=${encodeURIComponent(cleanedPhone)}&text=${encodeURIComponent(message)}&autoclick=true`;
         } else {
-            url = `https://wa.me/${encodeURIComponent(cleanedPhone)}?text=${encodeURIComponent(message)}`;
+            url = `https://wa.me/${encodeURIComponent(cleanedPhone)}?text=${encodeURIComponent(message)}&autoclick=true`;
         }
 
         waQueue[index].status = 'sent';
@@ -1811,7 +1811,7 @@ techfixpro.com`;
         if (autoAdvance && autoAdvance.checked) {
             setTimeout(() => {
                 updateWaAutopilotPanel();
-            }, 1200);
+            }, 6000); // 6 seconds delay between sending next chat to avoid browser layout choke
         }
     };
 
@@ -1905,6 +1905,18 @@ techfixpro.com`;
                 waQueue[waCurrentIndex].status = 'invalid';
                 renderWaQueue();
                 showToast('Lead marked as invalid (Not on WhatsApp)', 'warning');
+            }
+        });
+    }
+
+    const btnCopyUserScript = $('#btnCopyUserScript');
+    if (btnCopyUserScript) {
+        btnCopyUserScript.addEventListener('click', () => {
+            const textarea = $('#txtUserScript');
+            if (textarea) {
+                textarea.select();
+                document.execCommand('copy');
+                showToast('UserScript copied to clipboard!', 'success');
             }
         });
     }
