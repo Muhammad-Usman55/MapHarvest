@@ -84,7 +84,27 @@ body {
     border-right: 1px solid var(--border-primary); display: flex; flex-direction: column; z-index: 100;
     transition: transform var(--transition-base);
 }
-.sidebar-header { padding: 24px 20px; border-bottom: 1px solid var(--border-primary); }
+.sidebar-header { padding: 24px 20px; border-bottom: 1px solid var(--border-primary); display: flex; justify-content: space-between; align-items: center; }
+.theme-toggle-btn {
+    background: var(--bg-glass);
+    border: 1px solid var(--border-primary);
+    color: var(--text-secondary);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    flex-shrink: 0;
+}
+.theme-toggle-btn:hover {
+    background: var(--bg-glass-hover);
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+    transform: rotate(20deg);
+}
 .logo { display: flex; align-items: center; gap: 12px; }
 .logo-icon {
     width: 42px; height: 42px; background: var(--gradient-primary); border-radius: var(--border-radius-sm);
@@ -955,4 +975,48 @@ body {
 @media (max-width: 480px) {
     .stats-grid { grid-template-columns: 1fr; }
     .export-grid { grid-template-columns: 1fr; }
+}
+
+/* === Light Theme Override === */
+[data-theme="light"] {
+    --bg-primary: #f8fafc;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #f1f5f9;
+    --bg-card: rgba(255, 255, 255, 0.85);
+    --bg-card-hover: rgba(248, 250, 252, 0.95);
+    --bg-glass: rgba(0, 0, 0, 0.03);
+    --bg-glass-hover: rgba(0, 0, 0, 0.06);
+    --border-primary: rgba(0, 0, 0, 0.08);
+    --border-hover: rgba(0, 0, 0, 0.16);
+    --border-accent: rgba(99, 102, 241, 0.4);
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-tertiary: #64748b;
+    --text-muted: #94a3b8;
+    --accent-blue-glow: rgba(99, 102, 241, 0.08);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.1);
+    --shadow-glow: 0 0 30px rgba(99, 102, 241, 0.05);
+}
+
+[data-theme="light"] .sidebar {
+    background: rgba(255, 255, 255, 0.85);
+}
+
+[data-theme="light"] .bg-glow {
+    opacity: 0.15;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.25);
+}
+
+[data-theme="light"] .data-table th {
+    color: var(--text-secondary);
+    background: rgba(0, 0, 0, 0.02);
 }

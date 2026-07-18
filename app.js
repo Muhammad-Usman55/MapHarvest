@@ -1117,9 +1117,45 @@ techfixpro.com`;
     });
 
     // ═══════════════════════════════════════════
+    // THEME SWITCHER
+    // ═══════════════════════════════════════════
+    const THEME_KEY = 'mapharvest_theme';
+    const themeToggle = $('#themeToggle');
+    const sunIcon = $('#themeToggle .sun-icon');
+    const moonIcon = $('#themeToggle .moon-icon');
+
+    function initTheme() {
+        const storedTheme = localStorage.getItem(THEME_KEY) || 'dark';
+        setTheme(storedTheme);
+    }
+
+    function setTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem(THEME_KEY, theme);
+        
+        if (theme === 'light') {
+            sunIcon.style.display = 'none';
+            moonIcon.style.display = 'block';
+        } else {
+            sunIcon.style.display = 'block';
+            moonIcon.style.display = 'none';
+        }
+    }
+
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+            const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            setTheme(nextTheme);
+            showToast(`Switched to ${nextTheme === 'dark' ? 'Dark' : 'Light'} theme`, 'info');
+        });
+    }
+
+    // ═══════════════════════════════════════════
     // INIT
     // ═══════════════════════════════════════════
     function init() {
+        initTheme();
         dbManager.init()
             .then(() => dbManager.getAll())
             .then(data => {
