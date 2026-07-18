@@ -865,14 +865,14 @@
         tableBody.innerHTML = filtered.map(place => `
             <tr data-id="${place.id}">
                 <td><input type="checkbox" class="custom-checkbox row-check" value="${place.id}"></td>
-                <td class="td-name">${escapeHtml(place.name)}</td>
-                <td>${escapeHtml(place.category || '—')}</td>
-                <td>${place.rating ? `<div class="td-rating"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>${place.rating}</div>` : '—'}</td>
-                <td>${place.reviews ? place.reviews.toLocaleString() : '—'}</td>
-                <td>${escapeHtml(place.phone || '—')}</td>
-                <td title="${escapeHtml(place.address || '')}">${escapeHtml(truncate(place.address || '—', 28))}</td>
-                <td class="td-website">${place.website ? `<a href="${escapeHtml(place.website)}" target="_blank" rel="noopener">${escapeHtml(truncate(getDomain(place.website), 22))}</a>` : '—'}</td>
-                <td><div class="td-actions">
+                <td class="td-name" data-label="Name">${escapeHtml(place.name)}</td>
+                <td data-label="Category">${escapeHtml(place.category || '—')}</td>
+                <td data-label="Rating">${place.rating ? `<div class="td-rating"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>${place.rating}</div>` : '—'}</td>
+                <td data-label="Reviews">${place.reviews ? place.reviews.toLocaleString() : '—'}</td>
+                <td data-label="Phone">${escapeHtml(place.phone || '—')}</td>
+                <td data-label="Address" title="${escapeHtml(place.address || '')}">${escapeHtml(truncate(place.address || '—', 28))}</td>
+                <td class="td-website" data-label="Website">${place.website ? `<a href="${escapeHtml(place.website)}" target="_blank" rel="noopener">${escapeHtml(truncate(getDomain(place.website), 22))}</a>` : '—'}</td>
+                <td data-label="Actions"><div class="td-actions">
                     <button class="action-btn edit" onclick="editPlace('${place.id}')" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
                     <button class="action-btn delete" onclick="deletePlace('${place.id}')" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
                 </div></td>
@@ -1640,10 +1640,10 @@ techfixpro.com`;
             }
             body.innerHTML = usersList.map(u => `
                 <tr>
-                    <td style="font-weight: 600; color: var(--text-primary);">${escapeHtml(u.username)}</td>
-                    <td>${escapeHtml(u.gmail)}</td>
-                    <td>${new Date(u.createdAt).toLocaleString()}</td>
-                    <td><span style="padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; background: ${u.isAdmin ? 'var(--accent-rose)' : 'var(--accent-blue-light)'}; color: white;">${u.isAdmin ? 'Admin' : 'User'}</span></td>
+                    <td style="font-weight: 600; color: var(--text-primary);" data-label="User Name">${escapeHtml(u.username)}</td>
+                    <td data-label="Gmail">${escapeHtml(u.gmail)}</td>
+                    <td data-label="Created">${new Date(u.createdAt).toLocaleString()}</td>
+                    <td data-label="Privilege"><span style="padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; background: ${u.isAdmin ? 'var(--accent-rose)' : 'var(--accent-blue-light)'}; color: white;">${u.isAdmin ? 'Admin' : 'User'}</span></td>
                 </tr>
             `).join('');
         })
@@ -1668,12 +1668,12 @@ techfixpro.com`;
             }
             body.innerHTML = logs.map(log => `
                 <tr>
-                    <td style="font-weight: 600;">${escapeHtml(log.gmail)}</td>
-                    <td><span style="font-family: monospace; font-size: 0.8rem; font-weight: 700; color: var(--accent-blue-light);">${escapeHtml(log.action.toUpperCase())}</span></td>
-                    <td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(log.details)}">${escapeHtml(log.details)}</td>
-                    <td>${escapeHtml(log.device)}</td>
-                    <td><span style="font-family: monospace; font-size: 0.8rem;">${escapeHtml(log.ip)}</span></td>
-                    <td style="font-size: 0.8rem;">${new Date(log.timestamp).toLocaleString()}</td>
+                    <td style="font-weight: 600;" data-label="Gmail">${escapeHtml(log.gmail)}</td>
+                    <td data-label="Action"><span style="font-family: monospace; font-size: 0.8rem; font-weight: 700; color: var(--accent-blue-light);">${escapeHtml(log.action.toUpperCase())}</span></td>
+                    <td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHtml(log.details)}" data-label="Details">${escapeHtml(log.details)}</td>
+                    <td data-label="Device">${escapeHtml(log.device)}</td>
+                    <td data-label="IP"><span style="font-family: monospace; font-size: 0.8rem;">${escapeHtml(log.ip)}</span></td>
+                    <td data-label="Time" style="font-size: 0.8rem;">${new Date(log.timestamp).toLocaleString()}</td>
                 </tr>
             `).join('');
         })
