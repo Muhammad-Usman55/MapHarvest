@@ -270,7 +270,8 @@
         }
 
         // Connect to local Node backend SSE endpoint
-        const sseUrl = `/api/scrape?query=${encodeURIComponent(query)}`;
+        const token = localStorage.getItem('mapharvest_token') || '';
+        const sseUrl = `/api/scrape?query=${encodeURIComponent(query)}&token=${encodeURIComponent(token)}`;
         scraperSource = new EventSource(sseUrl);
 
         scraperSource.onmessage = function (event) {
@@ -1152,10 +1153,161 @@ techfixpro.com`;
     }
 
     // ═══════════════════════════════════════════
+    // AUTHENTICATION
+    // ═══════════════════════════════════════════
+    const TOKEN_KEY = 'mapharvest_token';
+    const USERNAME_KEY = 'mapharvest_username';
+
+    const authOverlay = $('#authOverlay');
+    const tabBtnLogin = $('#tabBtnLogin');
+    const tabBtnSignup = $('#tabBtnSignup');
+    const loginForm = $('#loginForm');
+    const signupForm = $('#signupForm');
+    const userProfileSection = $('#userProfileSection');
+    const userDisplay = $('#userDisplay');
+    const userAvatar = $('#userAvatar');
+    const btnLogout = $('#btnLogout');
+
+    function checkAuth() {
+        const token = localStorage.getItem(TOKEN_KEY);
+        const username = localStorage.getItem(USERNAME_KEY);
+        if (token && username) {
+            // Verify token with server
+            fetch('/api/auth/me', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(res => {
+                if (res.status === 200) {
+                    showApp(username);
+                } else {
+                    logout(true); // Token expired/invalid
+                }
+            })
+            .catch(() => {
+                // Trust token locally for offline resilience
+                showApp(username);
+            });
+        } else {
+            showAuth();
+        }
+    }
+
+    function showApp(username) {
+        if (authOverlay) authOverlay.classList.add('hidden');
+        if (userProfileSection) {
+            userProfileSection.style.display = 'flex';
+            userDisplay.textContent = username;
+            userAvatar.textContent = username.charAt(0).toUpperCase();
+        }
+    }
+
+    function showAuth() {
+        if (authOverlay) authOverlay.classList.remove('hidden');
+        if (userProfileSection) {
+            userProfileSection.style.display = 'none';
+        }
+    }
+
+    function logout(silent = false) {
+        const token = localStorage.getItem(TOKEN_KEY);
+        if (token) {
+            fetch('/api/auth/logout', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            }).catch(() => {});
+        }
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(USERNAME_KEY);
+        showAuth();
+        if (!silent) showToast('Logged out successfully', 'info');
+    }
+
+    // Tabs switching
+    if (tabBtnLogin && tabBtnSignup) {
+        tabBtnLogin.addEventListener('click', () => {
+            tabBtnLogin.classList.add('active');
+            tabBtnSignup.classList.remove('active');
+            loginForm.classList.add('active');
+            signupForm.classList.remove('active');
+        });
+        tabBtnSignup.addEventListener('click', () => {
+            tabBtnSignup.classList.add('active');
+            tabBtnLogin.classList.remove('active');
+            signupForm.classList.add('active');
+            loginForm.classList.remove('active');
+        });
+    }
+
+    // Forms handling
+    if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = $('#loginUsername').value.trim();
+            const password = $('#loginPassword').value;
+
+            fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            })
+            .then(res => res.json().then(data => ({ status: res.status, data })))
+            .then(res => {
+                if (res.status === 200) {
+                    localStorage.setItem(TOKEN_KEY, res.data.token);
+                    localStorage.setItem(USERNAME_KEY, res.data.username);
+                    showApp(res.data.username);
+                    showToast(`Welcome back, ${res.data.username}!`, 'success');
+                    $('#loginUsername').value = '';
+                    $('#loginPassword').value = '';
+                } else {
+                    showToast(res.data.error || 'Login failed', 'error');
+                }
+            })
+            .catch(err => {
+                showToast('Server connection failed: ' + err.message, 'error');
+            });
+        });
+    }
+
+    if (signupForm) {
+        signupForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = $('#signupUsername').value.trim();
+            const password = $('#signupPassword').value;
+
+            fetch('/api/auth/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            })
+            .then(res => res.json().then(data => ({ status: res.status, data })))
+            .then(res => {
+                if (res.status === 200) {
+                    showToast(res.data.message || 'Account created! Please login.', 'success');
+                    tabBtnLogin.click(); // switch to login form
+                    $('#loginUsername').value = username; // pre-fill username
+                    $('#signupUsername').value = '';
+                    $('#signupPassword').value = '';
+                } else {
+                    showToast(res.data.error || 'Signup failed', 'error');
+                }
+            })
+            .catch(err => {
+                showToast('Server connection failed: ' + err.message, 'error');
+            });
+        });
+    }
+
+    if (btnLogout) {
+        btnLogout.addEventListener('click', () => logout());
+    }
+
+    // ═══════════════════════════════════════════
     // INIT
     // ═══════════════════════════════════════════
     function init() {
         initTheme();
+        checkAuth();
         dbManager.init()
             .then(() => dbManager.getAll())
             .then(data => {

@@ -81,6 +81,15 @@
         </nav>
 
         <div class="sidebar-footer">
+            <div class="user-profile-section" id="userProfileSection" style="display: none; align-items: center; justify-content: space-between; padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid var(--border-primary);">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="width: 28px; height: 28px; border-radius: 50%; background: var(--gradient-primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem;" id="userAvatar">U</div>
+                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);" id="userDisplay">Guest</span>
+                </div>
+                <button class="logout-btn" id="btnLogout" title="Logout" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: color var(--transition-fast);">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="transform: rotate(180deg);"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                </button>
+            </div>
             <div class="storage-info">
                 <div class="storage-label">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
@@ -642,6 +651,50 @@
                     <button type="button" class="btn btn-ghost" id="btnCancelEdit">Cancel</button>
                     <button type="submit" class="btn btn-primary">Save Changes</button>
                 </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Auth Screen Overlay -->
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    <h2>MapHarvest</h2>
+                </div>
+                <p>Google Maps Data Scraper & Analytics Dashboard</p>
+            </div>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab-btn active" id="tabBtnLogin">Login</button>
+                <button class="auth-tab-btn" id="tabBtnSignup">Sign Up</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form active">
+                <div class="form-group">
+                    <label for="loginUsername">Username</label>
+                    <input type="text" id="loginUsername" required placeholder="Enter username">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" required placeholder="Enter password">
+                </div>
+                <button type="submit" class="btn btn-primary auth-submit-btn">Login</button>
+            </form>
+
+            <!-- Signup Form -->
+            <form id="signupForm" class="auth-form">
+                <div class="form-group">
+                    <label for="signupUsername">Username</label>
+                    <input type="text" id="signupUsername" required placeholder="Create username (min 3 characters)">
+                </div>
+                <div class="form-group">
+                    <label for="signupPassword">Password</label>
+                    <input type="password" id="signupPassword" required placeholder="Create password (min 6 characters)">
+                </div>
+                <button type="submit" class="btn btn-primary auth-submit-btn">Create Account</button>
             </form>
         </div>
     </div>

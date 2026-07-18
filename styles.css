@@ -1020,3 +1020,103 @@ body {
     color: var(--text-secondary);
     background: rgba(0, 0, 0, 0.02);
 }
+
+/* === Auth Screen Overlay === */
+.auth-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(circle at top left, var(--bg-tertiary), var(--bg-primary));
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    backdrop-filter: blur(20px);
+    transition: opacity var(--transition-base), visibility var(--transition-base);
+}
+.auth-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+.auth-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--border-radius);
+    padding: 36px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: var(--shadow-lg), var(--shadow-glow);
+    backdrop-filter: blur(15px);
+    animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes scaleUp {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+.auth-header {
+    text-align: center;
+    margin-bottom: 28px;
+}
+.auth-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+.auth-logo svg {
+    width: 32px;
+    height: 32px;
+    color: var(--accent-blue-light);
+    filter: drop-shadow(0 0 8px var(--accent-blue));
+}
+.auth-logo h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.auth-header p {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+.auth-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-primary);
+    margin-bottom: 24px;
+}
+.auth-tab-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-secondary);
+    padding: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+.auth-tab-btn:hover {
+    color: var(--text-primary);
+}
+.auth-tab-btn.active {
+    color: var(--accent-blue-light);
+    border-bottom-color: var(--accent-blue-light);
+}
+.auth-form {
+    display: none;
+}
+.auth-form.active {
+    display: block;
+}
+.auth-submit-btn {
+    width: 100%;
+    justify-content: center;
+    margin-top: 24px;
+    padding: 12px;
+    font-weight: 600;
+}

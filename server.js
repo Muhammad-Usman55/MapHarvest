@@ -11,13 +11,137 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(express.static(__dirname)); // Serve HTML, CSS, JS from the root folder
 
+const fs = require('fs');
+const crypto = require('crypto');
+
+const USERS_FILE = path.join(__dirname, 'users.json');
+let users = {};
+let activeTokens = new Map(); // token -> username
+
+// Load users from file
+function loadUsers() {
+    try {
+        if (fs.existsSync(USERS_FILE)) {
+            users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
+        } else {
+            users = {};
+            saveUsers();
+        }
+    } catch (e) {
+        console.error('Error loading users:', e);
+        users = {};
+    }
+}
+
+function saveUsers() {
+    try {
+        fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), 'utf8');
+    } catch (e) {
+        console.error('Error saving users:', e);
+    }
+}
+
+loadUsers();
+
+// Helper to hash password securely without external packages
+function hashPassword(password, salt) {
+    return crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+}
+
+// Middleware to verify session token
+function authenticate(req, res, next) {
+    let token = req.headers['authorization'];
+    if (token && token.startsWith('Bearer ')) {
+        token = token.slice(7).trim();
+    } else {
+        // Fallback for EventSource query param
+        token = req.query.token;
+    }
+
+    if (!token || !activeTokens.has(token)) {
+        res.status(401).json({ error: 'Unauthorized. Please login.' });
+        return;
+    }
+
+    req.username = activeTokens.get(token);
+    next();
+}
+
 // Helper function to format SSE messages
 function sendEvent(res, status, message, data = null) {
     res.write(`data: ${JSON.stringify({ status, message, data })}\n\n`);
 }
 
-// Scrape endpoint (Streams progress updates using Server-Sent Events)
-app.get('/api/scrape', async (req, res) => {
+// Auth API Endpoints
+app.post('/api/auth/signup', (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password || username.trim().length < 3 || password.length < 6) {
+        return res.status(400).json({ error: 'Username (min 3 chars) and Password (min 6 chars) are required.' });
+    }
+
+    const normUser = username.trim().toLowerCase();
+    if (users[normUser]) {
+        return res.status(400).json({ error: 'Username is already taken.' });
+    }
+
+    const salt = crypto.randomBytes(16).toString('hex');
+    const hash = hashPassword(password, salt);
+
+    users[normUser] = {
+        username: username.trim(),
+        salt,
+        hash,
+        createdAt: new Date().toISOString()
+    };
+    saveUsers();
+
+    res.json({ message: 'User registered successfully! Please login.' });
+});
+
+app.post('/api/auth/login', (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) {
+        return res.status(400).json({ error: 'Username and password are required.' });
+    }
+
+    const normUser = username.trim().toLowerCase();
+    const user = users[normUser];
+    if (!user) {
+        return res.status(401).json({ error: 'Invalid username or password.' });
+    }
+
+    const checkHash = hashPassword(password, user.salt);
+    if (checkHash !== user.hash) {
+        return res.status(401).json({ error: 'Invalid username or password.' });
+    }
+
+    // Generate token
+    const token = crypto.randomBytes(32).toString('hex');
+    activeTokens.set(token, user.username);
+
+    res.json({ token, username: user.username });
+});
+
+app.get('/api/auth/me', authenticate, (req, res) => {
+    res.json({ username: req.username });
+});
+
+app.post('/api/auth/logout', authenticate, (req, res) => {
+    const authHeader = req.headers['authorization'];
+    let token = '';
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.slice(7).trim();
+    } else {
+        token = req.query.token;
+    }
+    if (token) {
+        activeTokens.delete(token);
+    }
+    res.json({ message: 'Logged out successfully.' });
+});
+
+// Scrape endpoint (Streams progress updates using Server-Sent Events - Protected by authenticate)
+app.get('/api/scrape', authenticate, async (req, res) => {
     const query = req.query.query;
     let limit = parseInt(req.query.limit);
     const scrapeAll = isNaN(limit) || limit <= 0;
@@ -504,8 +628,8 @@ async function extractDetails(page, url) {
     }, url);
 }
 
-// Download endpoint to bypass browser popup/download blocker for automated streams
-app.post('/api/download', (req, res) => {
+// Download endpoint to bypass browser popup/download blocker for automated streams (Protected by authenticate)
+app.post('/api/download', authenticate, (req, res) => {
     const query = req.body.query;
     let dataList = [];
     try {
