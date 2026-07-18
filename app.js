@@ -1181,7 +1181,7 @@ techfixpro.com`;
     const moonIcon = $('#themeToggle .moon-icon');
 
     function initTheme() {
-        const storedTheme = localStorage.getItem(THEME_KEY) || 'dark';
+        const storedTheme = localStorage.getItem(THEME_KEY) || 'light';
         setTheme(storedTheme);
     }
 
@@ -1200,8 +1200,8 @@ techfixpro.com`;
 
     if (themeToggle) {
         themeToggle.addEventListener('click', () => {
-            const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-            const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            const nextTheme = currentTheme === 'light' ? 'dark' : 'light';
             setTheme(nextTheme);
             showToast(`Switched to ${nextTheme === 'dark' ? 'Dark' : 'Light'} theme`, 'info');
         });
