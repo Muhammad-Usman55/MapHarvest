@@ -1176,6 +1176,12 @@ techfixpro.com`;
     const tabBtnSignup = $('#tabBtnSignup');
     const loginForm = $('#loginForm');
     const signupForm = $('#signupForm');
+    const recoverForm = $('#recoverForm');
+    const btnForgotPass = $('#btnForgotPass');
+    const btnBackToLogin = $('#btnBackToLogin');
+    const btnGetQuestion = $('#btnGetQuestion');
+    const recoveryQuestionContainer = $('#recoveryQuestionContainer');
+    const lblRecoverQuestion = $('#lblRecoverQuestion');
     const userProfileSection = $('#userProfileSection');
     const userDisplay = $('#userDisplay');
     const userAvatar = $('#userAvatar');
@@ -1315,19 +1321,44 @@ techfixpro.com`;
         if (!silent) showToast('Logged out successfully', 'info');
     }
 
-    // Tabs switching
+    // Tabs switching & recovery navigation
+    const authTabs = $('.auth-tabs');
+    
     if (tabBtnLogin && tabBtnSignup) {
         tabBtnLogin.addEventListener('click', () => {
             tabBtnLogin.classList.add('active');
             tabBtnSignup.classList.remove('active');
             loginForm.classList.add('active');
             signupForm.classList.remove('active');
+            recoverForm.classList.remove('active');
+            authTabs.style.display = 'flex';
         });
         tabBtnSignup.addEventListener('click', () => {
             tabBtnSignup.classList.add('active');
             tabBtnLogin.classList.remove('active');
             signupForm.classList.add('active');
             loginForm.classList.remove('active');
+            recoverForm.classList.remove('active');
+            authTabs.style.display = 'flex';
+        });
+    }
+
+    if (btnForgotPass) {
+        btnForgotPass.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginForm.classList.remove('active');
+            signupForm.classList.remove('active');
+            recoverForm.classList.add('active');
+            authTabs.style.display = 'none';
+            recoveryQuestionContainer.style.display = 'none';
+            $('#recoverGmail').value = $('#loginGmail').value; // prefill if typed
+        });
+    }
+
+    if (btnBackToLogin) {
+        btnBackToLogin.addEventListener('click', () => {
+            recoverForm.classList.remove('active');
+            tabBtnLogin.click();
         });
     }
 
@@ -1345,11 +1376,11 @@ techfixpro.com`;
     if (loginForm) {
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const username = $('#loginUsername').value.trim();
+            const gmail = $('#loginGmail').value.trim();
             const password = $('#loginPassword').value;
 
-            if (!username || !password) {
-                showToast('Please enter both username and password', 'error');
+            if (!gmail || !password) {
+                showToast('Please enter both Gmail and password', 'error');
                 shakeAuthCard();
                 return;
             }
@@ -1357,7 +1388,7 @@ techfixpro.com`;
             fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ gmail, password })
             })
             .then(res => res.json().then(data => ({ status: res.status, data })))
             .then(res => {
@@ -1365,8 +1396,8 @@ techfixpro.com`;
                     localStorage.setItem(TOKEN_KEY, res.data.token);
                     localStorage.setItem(USERNAME_KEY, res.data.username);
                     showApp(res.data.username);
-                    showToast(`Welcome back, ${res.data.username}!`, 'success');
-                    $('#loginUsername').value = '';
+                    showToast(`Welcome back!`, 'success');
+                    $('#loginGmail').value = '';
                     $('#loginPassword').value = '';
                 } else {
                     showToast(res.data.error || 'Login failed', 'error');
@@ -1383,11 +1414,14 @@ techfixpro.com`;
     if (signupForm) {
         signupForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const username = $('#signupUsername').value.trim();
+            const gmail = $('#signupGmail').value.trim();
             const password = $('#signupPassword').value;
+            const securityQuestion = $('#signupQuestion').value;
+            const securityAnswer = $('#signupAnswer').value.trim();
 
-            if (username.length < 3) {
-                showToast('Username must be at least 3 characters', 'error');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!gmail || !emailRegex.test(gmail)) {
+                showToast('Please enter a valid email address', 'error');
                 shakeAuthCard();
                 return;
             }
@@ -1396,22 +1430,105 @@ techfixpro.com`;
                 shakeAuthCard();
                 return;
             }
+            if (!securityQuestion) {
+                showToast('Please select a security question', 'error');
+                shakeAuthCard();
+                return;
+            }
+            if (!securityAnswer) {
+                showToast('Please provide a security answer', 'error');
+                shakeAuthCard();
+                return;
+            }
 
             fetch('/api/auth/signup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ gmail, password, securityQuestion, securityAnswer })
             })
             .then(res => res.json().then(data => ({ status: res.status, data })))
             .then(res => {
                 if (res.status === 200) {
                     showToast(res.data.message || 'Account created! Please login.', 'success');
                     tabBtnLogin.click(); // switch to login form
-                    $('#loginUsername').value = username; // pre-fill username
-                    $('#signupUsername').value = '';
+                    $('#loginGmail').value = gmail; // pre-fill Gmail
+                    $('#signupGmail').value = '';
                     $('#signupPassword').value = '';
+                    $('#signupQuestion').value = '';
+                    $('#signupAnswer').value = '';
                 } else {
                     showToast(res.data.error || 'Signup failed', 'error');
+                    shakeAuthCard();
+                }
+            })
+            .catch(err => {
+                showToast('Server connection failed: ' + err.message, 'error');
+                shakeAuthCard();
+            });
+        });
+    }
+
+    // Password Recovery form handling
+    if (btnGetQuestion) {
+        btnGetQuestion.addEventListener('click', () => {
+            const gmail = $('#recoverGmail').value.trim();
+            if (!gmail) {
+                showToast('Please enter your Gmail address first', 'warning');
+                shakeAuthCard();
+                return;
+            }
+
+            fetch('/api/auth/recover-question', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ gmail })
+            })
+            .then(res => res.json().then(data => ({ status: res.status, data })))
+            .then(res => {
+                if (res.status === 200) {
+                    lblRecoverQuestion.textContent = res.data.securityQuestion;
+                    recoveryQuestionContainer.style.display = 'block';
+                    $('#recoverAnswer').value = '';
+                    $('#recoverNewPassword').value = '';
+                    showToast('Security question loaded', 'success');
+                } else {
+                    showToast(res.data.error || 'Could not load recovery question', 'error');
+                    shakeAuthCard();
+                }
+            })
+            .catch(err => {
+                showToast('Server connection failed: ' + err.message, 'error');
+                shakeAuthCard();
+            });
+        });
+    }
+
+    if (recoverForm) {
+        recoverForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const gmail = $('#recoverGmail').value.trim();
+            const securityAnswer = $('#recoverAnswer').value.trim();
+            const newPassword = $('#recoverNewPassword').value;
+
+            if (newPassword.length < 6) {
+                showToast('New password must be at least 6 characters', 'error');
+                shakeAuthCard();
+                return;
+            }
+
+            fetch('/api/auth/reset-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ gmail, securityAnswer, newPassword })
+            })
+            .then(res => res.json().then(data => ({ status: res.status, data })))
+            .then(res => {
+                if (res.status === 200) {
+                    showToast(res.data.message || 'Password reset successful!', 'success');
+                    btnBackToLogin.click();
+                    $('#loginGmail').value = gmail;
+                } else {
+                    showToast(res.data.error || 'Password reset failed', 'error');
                     shakeAuthCard();
                 }
             })

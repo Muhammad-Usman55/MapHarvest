@@ -74,23 +74,37 @@ function sendEvent(res, status, message, data = null) {
 
 // Auth API Endpoints
 app.post('/api/auth/signup', (req, res) => {
-    const { username, password } = req.body;
-    if (!username || !password || username.trim().length < 3 || password.length < 6) {
-        return res.status(400).json({ error: 'Username (min 3 chars) and Password (min 6 chars) are required.' });
+    const { gmail, password, securityQuestion, securityAnswer } = req.body;
+    
+    // Validate Gmail email pattern
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!gmail || !emailRegex.test(gmail) || !password || password.length < 6) {
+        return res.status(400).json({ error: 'A valid Gmail/Email address and password (min 6 characters) are required.' });
     }
 
-    const normUser = username.trim().toLowerCase();
-    if (users[normUser]) {
-        return res.status(400).json({ error: 'Username is already taken.' });
+    if (!securityQuestion || !securityAnswer || securityAnswer.trim().length === 0) {
+        return res.status(400).json({ error: 'Security question and answer are required for password recovery.' });
+    }
+
+    const normGmail = gmail.trim().toLowerCase();
+    if (users[normGmail]) {
+        return res.status(400).json({ error: 'This Gmail address is already registered.' });
     }
 
     const salt = crypto.randomBytes(16).toString('hex');
     const hash = hashPassword(password, salt);
 
-    users[normUser] = {
-        username: username.trim(),
+    // Hash the security answer for security (case-insensitive verification)
+    const answerSalt = crypto.randomBytes(16).toString('hex');
+    const answerHash = hashPassword(securityAnswer.trim().toLowerCase(), answerSalt);
+
+    users[normGmail] = {
+        gmail: gmail.trim(),
         salt,
         hash,
+        securityQuestion,
+        answerSalt,
+        answerHash,
         createdAt: new Date().toISOString()
     };
     saveUsers();
@@ -99,27 +113,70 @@ app.post('/api/auth/signup', (req, res) => {
 });
 
 app.post('/api/auth/login', (req, res) => {
-    const { username, password } = req.body;
-    if (!username || !password) {
-        return res.status(400).json({ error: 'Username and password are required.' });
+    const { gmail, password } = req.body;
+    if (!gmail || !password) {
+        return res.status(400).json({ error: 'Gmail address and password are required.' });
     }
 
-    const normUser = username.trim().toLowerCase();
-    const user = users[normUser];
+    const normGmail = gmail.trim().toLowerCase();
+    const user = users[normGmail];
     if (!user) {
-        return res.status(401).json({ error: 'Invalid username or password.' });
+        return res.status(401).json({ error: 'Invalid Gmail address or password.' });
     }
 
     const checkHash = hashPassword(password, user.salt);
     if (checkHash !== user.hash) {
-        return res.status(401).json({ error: 'Invalid username or password.' });
+        return res.status(401).json({ error: 'Invalid Gmail address or password.' });
     }
 
     // Generate token
     const token = crypto.randomBytes(32).toString('hex');
-    activeTokens.set(token, user.username);
+    activeTokens.set(token, user.gmail); // Use email as the identifier
 
-    res.json({ token, username: user.username });
+    res.json({ token, username: user.gmail });
+});
+
+// Recover security question endpoint
+app.post('/api/auth/recover-question', (req, res) => {
+    const { gmail } = req.body;
+    if (!gmail) {
+        return res.status(400).json({ error: 'Gmail address is required.' });
+    }
+    const normGmail = gmail.trim().toLowerCase();
+    const user = users[normGmail];
+    if (!user) {
+        return res.status(404).json({ error: 'No account registered with this Gmail.' });
+    }
+    res.json({ securityQuestion: user.securityQuestion });
+});
+
+// Reset password using security answer verification
+app.post('/api/auth/reset-password', (req, res) => {
+    const { gmail, securityAnswer, newPassword } = req.body;
+    if (!gmail || !securityAnswer || !newPassword || newPassword.length < 6) {
+        return res.status(400).json({ error: 'Gmail, answer, and a new password (min 6 characters) are required.' });
+    }
+
+    const normGmail = gmail.trim().toLowerCase();
+    const user = users[normGmail];
+    if (!user) {
+        return res.status(404).json({ error: 'Account not found.' });
+    }
+
+    const checkAnswerHash = hashPassword(securityAnswer.trim().toLowerCase(), user.answerSalt);
+    if (checkAnswerHash !== user.answerHash) {
+        return res.status(401).json({ error: 'Incorrect security answer.' });
+    }
+
+    // Reset password hash
+    const newSalt = crypto.randomBytes(16).toString('hex');
+    const newHash = hashPassword(newPassword, newSalt);
+
+    user.salt = newSalt;
+    user.hash = newHash;
+    saveUsers();
+
+    res.json({ message: 'Password has been reset successfully! Please login.' });
 });
 
 app.get('/api/auth/me', authenticate, (req, res) => {

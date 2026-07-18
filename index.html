@@ -674,18 +674,21 @@
             <!-- Login Form -->
             <form id="loginForm" class="auth-form active">
                 <div class="form-group">
-                    <label for="loginUsername">Username</label>
+                    <label for="loginGmail">Gmail Address</label>
                     <div class="input-with-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                        <input type="text" id="loginUsername" required placeholder="Enter username">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        <input type="email" id="loginGmail" required placeholder="Enter your Gmail">
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="margin-bottom: 8px;">
                     <label for="loginPassword">Password</label>
                     <div class="input-with-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                         <input type="password" id="loginPassword" required placeholder="Enter password">
                     </div>
+                </div>
+                <div style="text-align: right; margin-bottom: 20px;">
+                    <a href="#" id="btnForgotPass" style="font-size: 0.8rem; color: var(--accent-blue-light); text-decoration: none; font-weight: 600; transition: color var(--transition-fast);">Forgot Password?</a>
                 </div>
                 <button type="submit" class="btn btn-primary auth-submit-btn">Login</button>
             </form>
@@ -693,10 +696,10 @@
             <!-- Signup Form -->
             <form id="signupForm" class="auth-form">
                 <div class="form-group">
-                    <label for="signupUsername">Username</label>
+                    <label for="signupGmail">Gmail Address</label>
                     <div class="input-with-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                        <input type="text" id="signupUsername" required placeholder="Create username (min 3 characters)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        <input type="email" id="signupGmail" required placeholder="Enter your Gmail">
                     </div>
                 </div>
                 <div class="form-group">
@@ -706,7 +709,51 @@
                         <input type="password" id="signupPassword" required placeholder="Create password (min 6 characters)">
                     </div>
                 </div>
+                <div class="form-group">
+                    <label for="signupQuestion">Security Question (For Recovery)</label>
+                    <select id="signupQuestion" required style="width:100%; padding:10px; background:rgba(0,0,0,0.25); border:1px solid var(--border-primary); border-radius:var(--border-radius-sm); color:var(--text-primary); outline:none;">
+                        <option value="">Select a security question...</option>
+                        <option value="What was the name of your first pet?">What was the name of your first pet?</option>
+                        <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+                        <option value="What city were you born in?">What city were you born in?</option>
+                        <option value="What was the name of your primary school?">What was the name of your primary school?</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="signupAnswer">Security Answer</label>
+                    <input type="text" id="signupAnswer" required placeholder="Enter your answer" style="width:100%; padding:10px; background:rgba(0,0,0,0.25); border:1px solid var(--border-primary); border-radius:var(--border-radius-sm); color:var(--text-primary); outline:none;">
+                </div>
                 <button type="submit" class="btn btn-primary auth-submit-btn">Create Account</button>
+            </form>
+
+            <!-- Recover Password Form -->
+            <form id="recoverForm" class="auth-form">
+                <div class="form-group">
+                    <label for="recoverGmail">Gmail Address</label>
+                    <div class="input-with-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        <input type="email" id="recoverGmail" required placeholder="Enter registered Gmail">
+                    </div>
+                    <button type="button" class="btn btn-secondary" id="btnGetQuestion" style="margin-top: 10px; padding: 6px 12px; font-size: 0.82rem; height: auto; width: auto;">Get Security Question</button>
+                </div>
+                
+                <div id="recoveryQuestionContainer" style="display: none; margin-top: 14px;">
+                    <div class="form-group">
+                        <label>Security Question</label>
+                        <div style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500; line-height: 1.4;" id="lblRecoverQuestion">Question text here...</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="recoverAnswer">Security Answer</label>
+                        <input type="text" id="recoverAnswer" required placeholder="Enter answer" style="width:100%; padding:10px; background:rgba(0,0,0,0.25); border:1px solid var(--border-primary); border-radius:var(--border-radius-sm); color:var(--text-primary); outline:none;">
+                    </div>
+                    <div class="form-group">
+                        <label for="recoverNewPassword">New Password</label>
+                        <input type="password" id="recoverNewPassword" required placeholder="Enter new password (min 6 characters)" style="width:100%; padding:10px; background:rgba(0,0,0,0.25); border:1px solid var(--border-primary); border-radius:var(--border-radius-sm); color:var(--text-primary); outline:none;">
+                    </div>
+                    <button type="submit" class="btn btn-primary auth-submit-btn">Reset Password</button>
+                </div>
+                
+                <button type="button" class="btn btn-ghost" id="btnBackToLogin" style="margin-top: 18px; width: 100%; justify-content: center;">Back to Login</button>
             </form>
         </div>
     </div>
