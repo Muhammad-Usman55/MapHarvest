@@ -305,6 +305,7 @@
                             placesData.push(data);
                             dbManager.save(data);
                             saveData(placesData);
+                            syncToServer(data);
                         }
 
                         // Update progress bar
@@ -707,7 +708,14 @@
     btnSaveExtracted.addEventListener('click', () => {
         if (extractedPreview.length === 0) return;
         placesData = loadData();
-        placesData.push(...extractedPreview);
+        
+        // Save to IndexedDB and sync to server
+        extractedPreview.forEach(place => {
+            placesData.push(place);
+            dbManager.save(place);
+            syncToServer(place);
+        });
+
         saveData(placesData);
         showToast(`Saved ${extractedPreview.length} place(s) successfully!`, 'success');
         extractedPreview = [];
@@ -774,6 +782,7 @@
         placesData.push(place);
         dbManager.save(place);
         saveData(placesData);
+        syncToServer(place);
         manualForm.reset();
         showToast(`"${place.name}" added successfully!`, 'success');
     });
@@ -860,6 +869,7 @@
             placesData = placesData.filter(p => !checkedIds.includes(p.id));
             Promise.all(checkedIds.map(id => dbManager.delete(id))).then(() => {
                 saveData(placesData);
+                bulkDeleteFromServer(checkedIds);
                 selectAll.checked = false;
                 renderTable(searchInput.value);
                 showToast(`Deleted ${checkedIds.length} entries`, 'success');
@@ -895,6 +905,7 @@
             placesData = placesData.filter(p => p.id !== id);
             dbManager.delete(id);
             saveData(placesData);
+            deleteFromServer(id);
             renderTable(searchInput.value);
             showToast('Entry deleted', 'success');
         }
@@ -918,6 +929,7 @@
         placesData[idx] = updatedPlace;
         dbManager.save(updatedPlace);
         saveData(placesData);
+        syncToServer(updatedPlace);
         editModal.classList.remove('active');
         renderTable(searchInput.value);
         showToast('Entry updated successfully!', 'success');
@@ -1048,6 +1060,7 @@
             dbManager.clear().then(() => {
                 placesData = [];
                 saveData(placesData);
+                clearServerDatabase();
                 renderTable();
                 showToast('All data cleared', 'success');
             }).catch(err => {
@@ -1199,6 +1212,7 @@ techfixpro.com`;
             userDisplay.textContent = username;
             userAvatar.textContent = username.charAt(0).toUpperCase();
         }
+        syncFromServer(username);
     }
 
     function showAuth() {
@@ -1206,6 +1220,79 @@ techfixpro.com`;
         if (userProfileSection) {
             userProfileSection.style.display = 'none';
         }
+    }
+
+    function syncFromServer(username) {
+        const token = localStorage.getItem(TOKEN_KEY);
+        if (!token) return;
+        fetch('/api/places', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        })
+        .then(res => {
+            if (res.status === 401) {
+                logout(true);
+                throw new Error('Session expired');
+            }
+            return res.json();
+        })
+        .then(serverPlaces => {
+            placesData = serverPlaces;
+            dbManager.clear().then(() => {
+                const savePromises = serverPlaces.map(p => dbManager.save(p));
+                return Promise.all(savePromises);
+            }).then(() => {
+                updateStorageCount();
+                updateDashboard();
+                renderTable();
+            });
+        })
+        .catch(err => {
+            console.error('Failed to sync from server:', err);
+        });
+    }
+
+    function syncToServer(place) {
+        const token = localStorage.getItem(TOKEN_KEY);
+        if (!token) return;
+        fetch('/api/places', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(place)
+        }).catch(err => console.error('Failed to sync place to server:', err));
+    }
+
+    function deleteFromServer(id) {
+        const token = localStorage.getItem(TOKEN_KEY);
+        if (!token) return;
+        fetch(`/api/places/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        }).catch(err => console.error('Failed to delete place from server:', err));
+    }
+
+    function bulkDeleteFromServer(ids) {
+        const token = localStorage.getItem(TOKEN_KEY);
+        if (!token) return;
+        fetch('/api/places/bulk-delete', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ ids })
+        }).catch(err => console.error('Failed to bulk delete places from server:', err));
+    }
+
+    function clearServerDatabase() {
+        const token = localStorage.getItem(TOKEN_KEY);
+        if (!token) return;
+        fetch('/api/places/clear', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+        }).catch(err => console.error('Failed to clear database on server:', err));
     }
 
     function logout(silent = false) {
@@ -1218,6 +1305,12 @@ techfixpro.com`;
         }
         localStorage.removeItem(TOKEN_KEY);
         localStorage.removeItem(USERNAME_KEY);
+        placesData = [];
+        dbManager.clear().then(() => {
+            updateStorageCount();
+            updateDashboard();
+            renderTable();
+        });
         showAuth();
         if (!silent) showToast('Logged out successfully', 'info');
     }

@@ -677,6 +677,100 @@ app.post('/api/download', authenticate, (req, res) => {
     res.send(csvContent);
 });
 
+const DATA_DIR = path.join(__dirname, 'data');
+if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR);
+}
+
+// Get user places file path
+function getUserPlacesPath(username) {
+    const safeName = username.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    return path.join(DATA_DIR, `${safeName}_places.json`);
+}
+
+// Load user places
+function loadUserPlaces(username) {
+    const filePath = getUserPlacesPath(username);
+    try {
+        if (fs.existsSync(filePath)) {
+            return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        }
+    } catch (e) {
+        console.error(`Error loading places for ${username}:`, e);
+    }
+    return [];
+}
+
+// Save user places
+function saveUserPlaces(username, placesList) {
+    const filePath = getUserPlacesPath(username);
+    try {
+        fs.writeFileSync(filePath, JSON.stringify(placesList, null, 2), 'utf8');
+    } catch (e) {
+        console.error(`Error saving places for ${username}:`, e);
+    }
+}
+
+// User-Specific Database Endpoints
+app.get('/api/places', authenticate, (req, res) => {
+    const list = loadUserPlaces(req.username);
+    res.json(list);
+});
+
+app.post('/api/places', authenticate, (req, res) => {
+    const place = req.body;
+    if (!place || !place.id) {
+        return res.status(400).json({ error: 'Invalid place payload' });
+    }
+    const list = loadUserPlaces(req.username);
+    const idx = list.findIndex(p => p.id === place.id);
+    if (idx > -1) {
+        list[idx] = place; // update
+    } else {
+        list.push(place); // insert
+    }
+    saveUserPlaces(req.username, list);
+    res.json({ message: 'Saved successfully' });
+});
+
+app.put('/api/places/:id', authenticate, (req, res) => {
+    const { id } = req.params;
+    const place = req.body;
+    const list = loadUserPlaces(req.username);
+    const idx = list.findIndex(p => p.id === id);
+    if (idx > -1) {
+        list[idx] = { ...list[idx], ...place };
+        saveUserPlaces(req.username, list);
+        res.json({ message: 'Updated successfully' });
+    } else {
+        res.status(404).json({ error: 'Place not found' });
+    }
+});
+
+app.delete('/api/places/:id', authenticate, (req, res) => {
+    const { id } = req.params;
+    let list = loadUserPlaces(req.username);
+    list = list.filter(p => p.id !== id);
+    saveUserPlaces(req.username, list);
+    res.json({ message: 'Deleted successfully' });
+});
+
+app.post('/api/places/bulk-delete', authenticate, (req, res) => {
+    const { ids } = req.body;
+    if (!Array.isArray(ids)) {
+        return res.status(400).json({ error: 'Invalid ids array' });
+    }
+    let list = loadUserPlaces(req.username);
+    list = list.filter(p => !ids.includes(p.id));
+    saveUserPlaces(req.username, list);
+    res.json({ message: 'Bulk deletion successfully completed' });
+});
+
+app.post('/api/places/clear', authenticate, (req, res) => {
+    saveUserPlaces(req.username, []);
+    res.json({ message: 'Clear database successfully completed' });
+});
+
 app.listen(PORT, () => {
     console.log(`================================================================`);
     console.log(`  MapHarvest Server running on http://localhost:${PORT}`);
