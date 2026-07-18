@@ -1804,7 +1804,13 @@ techfixpro.com`;
         waQueue[index].status = 'sent';
         renderWaQueue();
 
-        window.open(url, '_blank', 'noopener');
+        const embedActive = $('#waEmbedPanel').style.display === 'flex';
+        if (embedActive) {
+            const iframe = $('#waIframe');
+            if (iframe) iframe.src = url;
+        } else {
+            window.open(url, '_blank', 'noopener');
+        }
 
         // Auto-advance loop trigger
         const autoAdvance = $('#waAutoAdvance');
@@ -1918,6 +1924,37 @@ techfixpro.com`;
                 document.execCommand('copy');
                 showToast('UserScript copied to clipboard!', 'success');
             }
+        });
+    }
+
+    const btnToggleWaEmbed = $('#btnToggleWaEmbed');
+    const waEmbedPanel = $('#waEmbedPanel');
+    const waMainContainer = $('#waMainContainer');
+    const waIframe = $('#waIframe');
+    const waEmbedHelper = $('#waEmbedHelper');
+    const btnDismissWaHelper = $('#btnDismissWaHelper');
+
+    if (btnToggleWaEmbed) {
+        btnToggleWaEmbed.addEventListener('click', () => {
+            const isHidden = waEmbedPanel.style.display === 'none' || !waEmbedPanel.style.display;
+            if (isHidden) {
+                waEmbedPanel.style.display = 'flex';
+                waMainContainer.style.gridTemplateColumns = '1.2fr 1.5fr';
+                if (waIframe.src === 'about:blank' || !waIframe.src || waIframe.src.includes('about:blank')) {
+                    waIframe.src = 'https://web.whatsapp.com/';
+                }
+                showToast('Embedded WhatsApp Web Panel opened', 'success');
+            } else {
+                waEmbedPanel.style.display = 'none';
+                waMainContainer.style.gridTemplateColumns = '1fr';
+                showToast('Embedded WhatsApp Web Panel closed', 'info');
+            }
+        });
+    }
+
+    if (btnDismissWaHelper) {
+        btnDismissWaHelper.addEventListener('click', () => {
+            if (waEmbedHelper) waEmbedHelper.style.display = 'none';
         });
     }
 
