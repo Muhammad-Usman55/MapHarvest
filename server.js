@@ -74,12 +74,16 @@ function sendEvent(res, status, message, data = null) {
 
 // Auth API Endpoints
 app.post('/api/auth/signup', (req, res) => {
-    const { gmail, password, securityQuestion, securityAnswer } = req.body;
+    const { gmail, password, username, securityQuestion, securityAnswer } = req.body;
     
     // Validate Gmail email pattern
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!gmail || !emailRegex.test(gmail) || !password || password.length < 6) {
         return res.status(400).json({ error: 'A valid Gmail/Email address and password (min 6 characters) are required.' });
+    }
+
+    if (!username || username.trim().length < 2) {
+        return res.status(400).json({ error: 'User name (min 2 characters) is required.' });
     }
 
     if (!securityQuestion || !securityAnswer || securityAnswer.trim().length === 0) {
@@ -100,6 +104,7 @@ app.post('/api/auth/signup', (req, res) => {
 
     users[normGmail] = {
         gmail: gmail.trim(),
+        username: username.trim(),
         salt,
         hash,
         securityQuestion,
@@ -133,7 +138,7 @@ app.post('/api/auth/login', (req, res) => {
     const token = crypto.randomBytes(32).toString('hex');
     activeTokens.set(token, user.gmail); // Use email as the identifier
 
-    res.json({ token, username: user.gmail });
+    res.json({ token, username: user.username });
 });
 
 // Recover security question endpoint
@@ -180,7 +185,13 @@ app.post('/api/auth/reset-password', (req, res) => {
 });
 
 app.get('/api/auth/me', authenticate, (req, res) => {
-    res.json({ username: req.username });
+    const normGmail = req.username ? req.username.toLowerCase() : '';
+    const user = users[normGmail];
+    if (user) {
+        res.json({ username: user.username });
+    } else {
+        res.json({ username: req.username });
+    }
 });
 
 app.post('/api/auth/logout', authenticate, (req, res) => {

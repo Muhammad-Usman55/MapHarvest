@@ -1414,11 +1414,17 @@ techfixpro.com`;
     if (signupForm) {
         signupForm.addEventListener('submit', (e) => {
             e.preventDefault();
+            const username = $('#signupUsername').value.trim();
             const gmail = $('#signupGmail').value.trim();
             const password = $('#signupPassword').value;
             const securityQuestion = $('#signupQuestion').value;
             const securityAnswer = $('#signupAnswer').value.trim();
 
+            if (username.length < 2) {
+                showToast('User name must be at least 2 characters', 'error');
+                shakeAuthCard();
+                return;
+            }
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!gmail || !emailRegex.test(gmail)) {
                 showToast('Please enter a valid email address', 'error');
@@ -1444,7 +1450,7 @@ techfixpro.com`;
             fetch('/api/auth/signup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ gmail, password, securityQuestion, securityAnswer })
+                body: JSON.stringify({ gmail, password, username, securityQuestion, securityAnswer })
             })
             .then(res => res.json().then(data => ({ status: res.status, data })))
             .then(res => {
@@ -1452,6 +1458,7 @@ techfixpro.com`;
                     showToast(res.data.message || 'Account created! Please login.', 'success');
                     tabBtnLogin.click(); // switch to login form
                     $('#loginGmail').value = gmail; // pre-fill Gmail
+                    $('#signupUsername').value = '';
                     $('#signupGmail').value = '';
                     $('#signupPassword').value = '';
                     $('#signupQuestion').value = '';
