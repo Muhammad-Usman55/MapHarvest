@@ -235,7 +235,7 @@ app.get('/api/scrape', async (req, res) => {
             }
 
             // Wait for new items to load
-            await new Promise(r => setTimeout(r, 10000));
+            await new Promise(r => setTimeout(r, 3000));
 
             // Check if we hit the bottom
             const atBottom = await page.evaluate(() => {
@@ -276,7 +276,10 @@ app.get('/api/scrape', async (req, res) => {
             try {
                 // Navigate to the listing detail URL
                 await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
-                await new Promise(r => setTimeout(r, 2000)); // wait for details to settle
+                try {
+                    await page.waitForSelector('h1', { timeout: 4000 });
+                } catch (e) {}
+                await new Promise(r => setTimeout(r, 500)); // wait for details to settle
 
                 const placeDetails = await extractDetails(page, url);
                 if (placeDetails && placeDetails.name) {
@@ -289,7 +292,7 @@ app.get('/api/scrape', async (req, res) => {
             }
 
             // Small delay to be polite
-            await new Promise(r => setTimeout(r, 1500));
+            await new Promise(r => setTimeout(r, 500));
         }
 
         sendEvent(res, 'success', 'Scraping completed successfully.');
