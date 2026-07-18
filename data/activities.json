@@ -1,0 +1,380 @@
+[
+  {
+    "gmail": "usman@gmail.com",
+    "action": "login",
+    "details": "User logged in (Browser: Mozilla/5.0 (Windows NT 10.0; )",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:36:04.434Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "signup",
+    "details": "Registered user \"ali\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:36:59.107Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "login",
+    "details": "User logged in (Browser: Mozilla/5.0 (Windows NT 10.0; )",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:37:09.080Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "scrape",
+    "details": "Launched scraper for query \"dentist in lahore\" (Limit: Unlimited)",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:37:34.304Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"SmileOn Dental\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:39:19.061Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"Lá Dental Aésthetique\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:39:21.822Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"Teeth and Smile Dental Clinic\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:39:24.371Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"Dental Aesthetics\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:39:27.136Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"Cantt Dental Care\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:39:29.903Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"Smile Hub Clinics\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:39:34.775Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"Lahore Dental Care | Dr. Hasnain Nizami\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:39:37.282Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"iDentist\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:39:39.874Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"Dental Avenue Hospital\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:39:42.903Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"OraDent Clinic\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:39:45.227Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"Dr Imran's Multispeciality Dental Care\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:39:47.817Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"Dr. Zeeshan Tahir – DRM Dental\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:39:50.337Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"Smile Solutions\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:39:52.832Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"Lahore Dental & Medical Centre\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:39:55.341Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"Dr Bilal\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:39:58.082Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"CURE N CARE DENTAL CENTRE\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:40:01.040Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"Al Aziz Family Dental clinic\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:40:04.082Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"Hafiz dental clinic\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:40:06.593Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"32 Dental Care\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:40:09.736Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"Dental Surgeons\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:40:12.659Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"Alina Dental clinics, Orthodontics and Implantology center\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:40:17.766Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"Rahman and Rahman Dental Surgeons\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:40:21.287Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"DENTAL HOUSE\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:40:23.207Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"Ideal Smile Dentistry\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:40:25.760Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"FAMILY DENTAL CLINIC\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:40:27.906Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"Aamir's Dental Surgery\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:40:30.577Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"Dentology Dental Clinic\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:40:33.125Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"Ghani Dental Care\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:40:35.892Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"Rehman Dental Care\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:40:38.793Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"Waleed Dental and medical Center\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:40:41.357Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"CURE ALL DENTISTRY\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:40:44.254Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"Sana Samin Dental Care\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:40:47.103Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"Dental Dock |Dr Sehrish | Dental Surgeon | Best Dentist in Walton Lahore | 15 Years Experience | Certified Doctor In Lahore\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:40:50.091Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"Tiny Tooth Dental Clinic\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:40:53.437Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"Dental Experts\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:40:56.689Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"Rahman and Rahman Dental Surgeons Y Block Phase 3 DHA\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:41:00.612Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"Advanced Dental Practice, Lahore.\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:41:04.348Z"
+  },
+  {
+    "gmail": "ali@gmail.com",
+    "action": "place-save",
+    "details": "Created new business profile \"Family Smiles Dental Clinic\"",
+    "ip": "::1",
+    "device": "Desktop (Chrome)",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
+    "timestamp": "2026-07-18T08:41:08.689Z"
+  }
+]

@@ -215,9 +215,46 @@
         };
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
-        toast.innerHTML = `<span class="toast-icon">${icons[type]}</span><span>${message}</span>`;
+        toast.innerHTML = `
+            <span class="toast-icon">${icons[type]}</span>
+            <span>${message}</span>
+            <div class="toast-progress"></div>
+        `;
         toastContainer.appendChild(toast);
-        setTimeout(() => { toast.classList.add('toast-exit'); setTimeout(() => toast.remove(), 300); }, 3500);
+
+        let dismissTimeout;
+        let start = Date.now();
+        let remaining = 3500;
+
+        function startTimer() {
+            dismissTimeout = setTimeout(() => {
+                toast.classList.add('toast-exit');
+                setTimeout(() => toast.remove(), 300);
+            }, remaining);
+        }
+
+        function pauseTimer() {
+            clearTimeout(dismissTimeout);
+            remaining -= Date.now() - start;
+            const progress = toast.querySelector('.toast-progress');
+            if (progress) {
+                progress.style.animationPlayState = 'paused';
+            }
+        }
+
+        function resumeTimer() {
+            start = Date.now();
+            startTimer();
+            const progress = toast.querySelector('.toast-progress');
+            if (progress) {
+                progress.style.animationPlayState = 'running';
+            }
+        }
+
+        toast.addEventListener('mouseenter', pauseTimer);
+        toast.addEventListener('mouseleave', resumeTimer);
+
+        startTimer();
     }
 
     // ═══════════════════════════════════════════
