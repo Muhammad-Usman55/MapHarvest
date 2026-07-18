@@ -1720,16 +1720,29 @@ techfixpro.com`;
         if (!panel) return;
 
         const nextIndex = waQueue.findIndex(item => item.status === 'pending');
+        const sentCount = waQueue.filter(item => item.status === 'sent').length;
+        const totalCount = waQueue.length;
+
+        // Update progress counter in status label
+        const lblStatus = $('#lblWaCampaignStatus');
+        if (lblStatus && typeof waCampaignState !== 'undefined' && waCampaignState === 'running') {
+            lblStatus.textContent = `Running (${sentCount}/${totalCount})`;
+        }
+
         if (nextIndex === -1) {
-            panel.style.display = 'none';
+            if (typeof waCampaignState === 'undefined' || waCampaignState === 'idle') {
+                panel.style.display = 'none';
+            }
             waCurrentIndex = -1;
+            if (nextName) nextName.textContent = 'All Done!';
+            if (nextPhone) nextPhone.textContent = `${sentCount}/${totalCount} sent`;
             return;
         }
 
         waCurrentIndex = nextIndex;
         const item = waQueue[nextIndex];
-        nextName.textContent = item.name;
-        nextPhone.textContent = item.phone;
+        if (nextName) nextName.textContent = item.name;
+        if (nextPhone) nextPhone.textContent = item.phone;
         panel.style.display = 'block';
     }
 
@@ -1812,12 +1825,14 @@ techfixpro.com`;
             window.open(url, '_blank', 'noopener');
         }
 
-        // Auto-advance loop trigger
-        const autoAdvance = $('#waAutoAdvance');
-        if (autoAdvance && autoAdvance.checked) {
-            setTimeout(() => {
-                updateWaAutopilotPanel();
-            }, 6000); // 6 seconds delay between sending next chat to avoid browser layout choke
+        // Auto-advance loop trigger (Only if not running automatic campaign loop)
+        if (typeof waCampaignState !== 'undefined' && waCampaignState !== 'running') {
+            const autoAdvance = $('#waAutoAdvance');
+            if (autoAdvance && autoAdvance.checked) {
+                setTimeout(() => {
+                    updateWaAutopilotPanel();
+                }, 6000); // 6 seconds delay between sending next chat to avoid browser layout choke
+            }
         }
     };
 
@@ -1957,6 +1972,117 @@ techfixpro.com`;
             if (waEmbedHelper) waEmbedHelper.style.display = 'none';
         });
     }
+
+    // ═══════════════════════════════════════════
+    // WHATSAPP AUTOMATED CAMPAIGN LOOP LOGIC
+    // ═══════════════════════════════════════════
+    let waCampaignState = 'idle'; // 'idle', 'running', 'paused'
+    let waCampaignTimer = null;
+
+    function updateWaCampaignStatusUI() {
+        const lblStatus = $('#lblWaCampaignStatus');
+        const btnStart = $('#btnWaStartCampaign');
+        const btnPause = $('#btnWaPauseCampaign');
+        const btnEnd = $('#btnWaEndCampaign');
+
+        if (!lblStatus) return;
+
+        if (waCampaignState === 'idle') {
+            lblStatus.textContent = 'Idle';
+            lblStatus.style.color = 'var(--text-muted)';
+            if (btnStart) {
+                btnStart.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    Start Campaign
+                `;
+                btnStart.style.display = 'inline-flex';
+            }
+            if (btnPause) btnPause.style.display = 'none';
+            if (btnEnd) btnEnd.style.display = 'none';
+        } else if (waCampaignState === 'running') {
+            lblStatus.textContent = 'Running';
+            lblStatus.style.color = 'var(--accent-emerald)';
+            if (btnStart) btnStart.style.display = 'none';
+            if (btnPause) btnPause.style.display = 'inline-flex';
+            if (btnEnd) btnEnd.style.display = 'inline-flex';
+        } else if (waCampaignState === 'paused') {
+            lblStatus.textContent = 'Paused';
+            lblStatus.style.color = 'var(--accent-amber)';
+            if (btnStart) {
+                btnStart.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    Resume Campaign
+                `;
+                btnStart.style.display = 'inline-flex';
+            }
+            if (btnPause) btnPause.style.display = 'none';
+            if (btnEnd) btnEnd.style.display = 'inline-flex';
+        }
+    }
+
+    function startWaCampaignLoop() {
+        if (waCampaignState !== 'running') return;
+        
+        // Find next pending
+        const nextIndex = waQueue.findIndex(item => item.status === 'pending');
+        if (nextIndex === -1) {
+            endWaCampaign();
+            showToast('🎉 All messages in the queue have been dispatched!', 'success');
+            return;
+        }
+
+        // Update autopilot panel to show active target
+        waCurrentIndex = nextIndex;
+        updateWaAutopilotPanel();
+
+        // Open/Send individual chat
+        sendWaIndividual(nextIndex);
+
+        // Schedule next advance in 7.5 seconds
+        waCampaignTimer = setTimeout(() => {
+            startWaCampaignLoop();
+        }, 7500); // 7.5 seconds delay to allow WhatsApp loading and delivery
+    }
+
+    function startWaCampaign() {
+        if (waQueue.length === 0) {
+            showToast('Queue is empty! Please load contacts first.', 'warning');
+            return;
+        }
+        waCampaignState = 'running';
+        updateWaCampaignStatusUI();
+        showToast('WhatsApp Marketing Campaign started', 'success');
+        startWaCampaignLoop();
+    }
+
+    function pauseWaCampaign() {
+        waCampaignState = 'paused';
+        if (waCampaignTimer) {
+            clearTimeout(waCampaignTimer);
+            waCampaignTimer = null;
+        }
+        updateWaCampaignStatusUI();
+        showToast('Campaign paused', 'info');
+    }
+
+    function endWaCampaign() {
+        waCampaignState = 'idle';
+        if (waCampaignTimer) {
+            clearTimeout(waCampaignTimer);
+            waCampaignTimer = null;
+        }
+        updateWaCampaignStatusUI();
+        showToast('Campaign ended', 'info');
+    }
+
+    // Bind Controls
+    const btnWaStartCampaign = $('#btnWaStartCampaign');
+    const btnWaPauseCampaign = $('#btnWaPauseCampaign');
+    const btnWaEndCampaign = $('#btnWaEndCampaign');
+
+    if (btnWaStartCampaign) btnWaStartCampaign.addEventListener('click', startWaCampaign);
+    if (btnWaPauseCampaign) btnWaPauseCampaign.addEventListener('click', pauseWaCampaign);
+    if (btnWaEndCampaign) btnWaEndCampaign.addEventListener('click', endWaCampaign);
 
     // ═══════════════════════════════════════════
     // INIT

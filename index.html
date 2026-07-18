@@ -724,13 +724,33 @@
                             </div>
 
                             <!-- Autopilot controller helper -->
-                            <div id="waHelperPanel" style="display: none; margin-top: 16px; padding: 12px; background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.15); border-radius: var(--border-radius-sm); text-align: center;">
+                            <div id="waHelperPanel" style="display: none; margin-top: 16px; padding: 16px; background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.15); border-radius: var(--border-radius-sm); text-align: center;">
                                 <div style="font-weight: 700; color: var(--text-primary); font-size: 0.88rem; margin-bottom: 6px;">
-                                    🚀 Campaign Auto-Pilot Active
+                                    🚀 Campaign Manager Controls
                                 </div>
-                                <div style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 12px;">
-                                    Next up: <span id="lblWaNextName" style="font-weight: 700; color: var(--accent-blue-light);">None</span> (<span id="lblWaNextPhone">None</span>)
+                                <div style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 8px;">
+                                    Status: <span id="lblWaCampaignStatus" style="font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Idle</span>
                                 </div>
+                                <div style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 14px;">
+                                    Active Target: <span id="lblWaNextName" style="font-weight: 700; color: var(--accent-blue-light);">None</span> (<span id="lblWaNextPhone">None</span>)
+                                </div>
+                                
+                                <!-- Loop Controls -->
+                                <div style="display: flex; gap: 8px; justify-content: center; margin-bottom: 12px; border-bottom: 1px solid var(--border-primary); padding-bottom: 12px;">
+                                    <button type="button" class="btn btn-primary btn-sm" id="btnWaStartCampaign" style="background: var(--gradient-blue); box-shadow: none;">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                        Start Campaign
+                                    </button>
+                                    <button type="button" class="btn btn-primary btn-sm" id="btnWaPauseCampaign" style="display: none; background: var(--accent-amber); border: 1px solid rgba(245,158,11,0.2); color: white; box-shadow: none;">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                                        Pause
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-sm" id="btnWaEndCampaign" style="display: none;">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><rect x="4" y="4" width="16" height="16"/></svg>
+                                        End Campaign
+                                    </button>
+                                </div>
+
                                 <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
                                     <button type="button" class="btn btn-primary btn-sm" id="btnWaSendNext">Open Next Chat</button>
                                     <button type="button" class="btn btn-ghost btn-sm" id="btnWaMarkInvalid" style="color: var(--accent-rose); border-color: rgba(244,63,94,0.2);">Not on WhatsApp</button>
