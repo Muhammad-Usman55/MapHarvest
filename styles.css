@@ -141,6 +141,13 @@ body {
 }
 .btn-clear-all:hover { background: rgba(244,63,94,0.1); border-color: rgba(244,63,94,0.3); }
 
+/* === Layouts === */
+.split-view {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
 /* === Main Content === */
 .main-content { margin-left: var(--sidebar-width); min-height: 100vh; position: relative; z-index: 1; }
 .mobile-header {

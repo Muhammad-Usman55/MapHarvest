@@ -897,7 +897,17 @@
 
     selectAll.addEventListener('change', () => { $$('.row-check').forEach(cb => { cb.checked = selectAll.checked; }); updateBulkActions(); });
     function attachCheckboxListeners() { $$('.row-check').forEach(cb => { cb.addEventListener('change', updateBulkActions); }); }
-    function updateBulkActions() { const checked = $$('.row-check:checked'); bulkActions.style.display = checked.length > 0 ? 'block' : 'none'; }
+    function updateBulkActions() {
+        const checked = $$('.row-check:checked');
+        bulkActions.style.display = checked.length > 0 ? 'block' : 'none';
+        const btnSelected = $('#btnLoadWaQueueSelected');
+        if (btnSelected) {
+            btnSelected.innerHTML = `
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                Import Selected Contacts (${checked.length})
+            `;
+        }
+    }
 
     btnDeleteSelected.addEventListener('click', () => {
         const checkedIds = [...$$('.row-check:checked')].map(cb => cb.value);
@@ -1684,6 +1694,197 @@ techfixpro.com`;
         .catch(err => {
             console.error('Failed to load activities log:', err);
             $('#adminActivitiesBody').innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--accent-rose);">Access denied or failed to load.</td></tr>`;
+        });
+    }
+
+    // ═══════════════════════════════════════════
+    // WHATSAPP CAMPAIGN MANAGER LOGIC
+    // ═══════════════════════════════════════════
+    let waQueue = [];
+    let waCurrentIndex = -1;
+
+    function formatPhoneForWhatsapp(phone) {
+        if (!phone) return '';
+        let cleaned = phone.replace(/\D/g, '');
+        // Pakistan phone numbers standard 03... -> 923...
+        if (cleaned.startsWith('0') && cleaned.length === 11) {
+            cleaned = '92' + cleaned.substring(1);
+        }
+        return cleaned;
+    }
+
+    function updateWaAutopilotPanel() {
+        const panel = $('#waHelperPanel');
+        const nextName = $('#lblWaNextName');
+        const nextPhone = $('#lblWaNextPhone');
+        if (!panel) return;
+
+        const nextIndex = waQueue.findIndex(item => item.status === 'pending');
+        if (nextIndex === -1) {
+            panel.style.display = 'none';
+            waCurrentIndex = -1;
+            return;
+        }
+
+        waCurrentIndex = nextIndex;
+        const item = waQueue[nextIndex];
+        nextName.textContent = item.name;
+        nextPhone.textContent = item.phone;
+        panel.style.display = 'block';
+    }
+
+    function renderWaQueue() {
+        const queueBody = $('#waQueueBody');
+        const countLabel = $('#lblWaQueueCount');
+        if (!queueBody) return;
+
+        countLabel.textContent = waQueue.length;
+
+        if (waQueue.length === 0) {
+            queueBody.innerHTML = `
+                <tr>
+                    <td colspan="4" style="text-align: center; color: var(--text-tertiary); padding: 24px;">Import contacts with phone numbers to build queue</td>
+                </tr>
+            `;
+            const panel = $('#waHelperPanel');
+            if (panel) panel.style.display = 'none';
+            return;
+        }
+
+        queueBody.innerHTML = waQueue.map((item, index) => {
+            let statusBadge = '';
+            if (item.status === 'pending') {
+                statusBadge = '<span class="status-pill status-idle" style="background: rgba(148,163,184,0.1); color: var(--text-secondary); font-size: 0.72rem;">Pending</span>';
+            } else if (item.status === 'sent') {
+                statusBadge = '<span class="status-pill status-complete" style="background: rgba(16,185,129,0.1); color: var(--accent-emerald); font-size: 0.72rem;">Sent</span>';
+            } else if (item.status === 'skipped') {
+                statusBadge = '<span class="status-pill status-error" style="background: rgba(244,63,94,0.1); color: var(--accent-rose); font-size: 0.72rem;">Skipped</span>';
+            }
+
+            return `
+                <tr>
+                    <td class="td-name" data-label="Business" style="white-space: nowrap; max-width: 140px; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(item.name)}</td>
+                    <td data-label="Phone" style="font-family: monospace;">${escapeHtml(item.phone)}</td>
+                    <td data-label="Status">${statusBadge}</td>
+                    <td data-label="Action">
+                        <button type="button" class="action-btn" onclick="sendWaIndividual(${index})" title="Open WhatsApp Chat" style="color: var(--accent-emerald); background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.15); display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 6px; cursor: pointer;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+
+        updateWaAutopilotPanel();
+    }
+
+    window.sendWaIndividual = function(index) {
+        if (index < 0 || index >= waQueue.length) return;
+        const item = waQueue[index];
+        const template = $('#waTemplate').value || '';
+        
+        let message = template
+            .replace(/{Name}/g, item.name || '')
+            .replace(/{Category}/g, item.category || '')
+            .replace(/{Phone}/g, item.phone || '')
+            .replace(/{Address}/g, item.address || '');
+
+        const cleanedPhone = formatPhoneForWhatsapp(item.phone);
+        const method = $('#waSendMethod').value;
+        
+        let url = '';
+        if (method === 'web') {
+            url = `https://web.whatsapp.com/send?phone=${encodeURIComponent(cleanedPhone)}&text=${encodeURIComponent(message)}`;
+        } else {
+            url = `https://wa.me/${encodeURIComponent(cleanedPhone)}?text=${encodeURIComponent(message)}`;
+        }
+
+        waQueue[index].status = 'sent';
+        renderWaQueue();
+
+        window.open(url, '_blank', 'noopener');
+    };
+
+    // UI Buttons
+    const btnLoadWaQueue = $('#btnLoadWaQueue');
+    const btnLoadWaQueueSelected = $('#btnLoadWaQueueSelected');
+    const btnClearWaQueue = $('#btnClearWaQueue');
+    const btnWaSendNext = $('#btnWaSendNext');
+    const btnWaSkipNext = $('#btnWaSkipNext');
+
+    if (btnLoadWaQueue) {
+        btnLoadWaQueue.addEventListener('click', () => {
+            placesData = loadData();
+            const valid = placesData.filter(p => p.phone && p.phone.trim() !== '');
+            if (valid.length === 0) {
+                showToast('No database entries contain phone numbers!', 'warning');
+                return;
+            }
+            waQueue = valid.map(p => ({
+                id: p.id,
+                name: p.name,
+                phone: p.phone,
+                category: p.category || '',
+                address: p.address || '',
+                status: 'pending'
+            }));
+            renderWaQueue();
+            showToast(`Loaded ${waQueue.length} contacts to WhatsApp queue!`, 'success');
+        });
+    }
+
+    if (btnLoadWaQueueSelected) {
+        btnLoadWaQueueSelected.addEventListener('click', () => {
+            const checkedCbs = $$('.row-check:checked');
+            if (checkedCbs.length === 0) {
+                showToast('Please select one or more entries in the Data Table first!', 'warning');
+                return;
+            }
+            placesData = loadData();
+            const selectedIds = [...checkedCbs].map(cb => cb.value);
+            const valid = placesData.filter(p => selectedIds.includes(p.id) && p.phone && p.phone.trim() !== '');
+            if (valid.length === 0) {
+                showToast('None of the selected entries contain phone numbers!', 'warning');
+                return;
+            }
+            waQueue = valid.map(p => ({
+                id: p.id,
+                name: p.name,
+                phone: p.phone,
+                category: p.category || '',
+                address: p.address || '',
+                status: 'pending'
+            }));
+            renderWaQueue();
+            showToast(`Loaded ${waQueue.length} selected contacts to WhatsApp queue!`, 'success');
+        });
+    }
+
+    if (btnClearWaQueue) {
+        btnClearWaQueue.addEventListener('click', () => {
+            if (waQueue.length > 0 && confirm('Wipe current WhatsApp marketing queue?')) {
+                waQueue = [];
+                renderWaQueue();
+                showToast('WhatsApp queue wiped', 'info');
+            }
+        });
+    }
+
+    if (btnWaSendNext) {
+        btnWaSendNext.addEventListener('click', () => {
+            if (waCurrentIndex > -1 && waCurrentIndex < waQueue.length) {
+                sendWaIndividual(waCurrentIndex);
+            }
+        });
+    }
+
+    if (btnWaSkipNext) {
+        btnWaSkipNext.addEventListener('click', () => {
+            if (waCurrentIndex > -1 && waCurrentIndex < waQueue.length) {
+                waQueue[waCurrentIndex].status = 'skipped';
+                renderWaQueue();
+                showToast('Skipped contact', 'info');
+            }
         });
     }
 
