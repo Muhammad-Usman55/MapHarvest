@@ -1759,6 +1759,8 @@ techfixpro.com`;
                 statusBadge = '<span class="status-pill status-complete" style="background: rgba(16,185,129,0.1); color: var(--accent-emerald); font-size: 0.72rem;">Sent</span>';
             } else if (item.status === 'skipped') {
                 statusBadge = '<span class="status-pill status-error" style="background: rgba(244,63,94,0.1); color: var(--accent-rose); font-size: 0.72rem;">Skipped</span>';
+            } else if (item.status === 'invalid') {
+                statusBadge = '<span class="status-pill status-error" style="background: rgba(244,63,94,0.15); color: var(--accent-rose); font-size: 0.72rem;">Not on WA</span>';
             }
 
             return `
@@ -1803,6 +1805,14 @@ techfixpro.com`;
         renderWaQueue();
 
         window.open(url, '_blank', 'noopener');
+
+        // Auto-advance loop trigger
+        const autoAdvance = $('#waAutoAdvance');
+        if (autoAdvance && autoAdvance.checked) {
+            setTimeout(() => {
+                updateWaAutopilotPanel();
+            }, 1200);
+        }
     };
 
     // UI Buttons
@@ -1884,6 +1894,17 @@ techfixpro.com`;
                 waQueue[waCurrentIndex].status = 'skipped';
                 renderWaQueue();
                 showToast('Skipped contact', 'info');
+            }
+        });
+    }
+
+    const btnWaMarkInvalid = $('#btnWaMarkInvalid');
+    if (btnWaMarkInvalid) {
+        btnWaMarkInvalid.addEventListener('click', () => {
+            if (waCurrentIndex > -1 && waCurrentIndex < waQueue.length) {
+                waQueue[waCurrentIndex].status = 'invalid';
+                renderWaQueue();
+                showToast('Lead marked as invalid (Not on WhatsApp)', 'warning');
             }
         });
     }
