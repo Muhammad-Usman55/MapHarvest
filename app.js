@@ -999,6 +999,10 @@
         placesData = loadData();
         if (placesData.length === 0) { showToast('No data to export', 'warning'); return; }
         
+        // Define file name matching search keyword/query
+        const activeQuery = currentQuery || searchInput.value.trim() || heroSearchInput.value.trim() || 'mapharvest_export';
+        const safeQuery = activeQuery.trim().replace(/[\\/:*?"<>|]/g, '_').toLowerCase();
+        
         if (format === 'excel') {
             try {
                 const mappedData = placesData.map(p => ({
@@ -1020,7 +1024,7 @@
                 const worksheet = XLSX.utils.json_to_sheet(mappedData);
                 const workbook = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(workbook, worksheet, "MapHarvest Data");
-                XLSX.writeFile(workbook, `mapharvest_${getDateStr()}.xlsx`);
+                XLSX.writeFile(workbook, `${safeQuery}.xlsx`);
                 showToast(`Exported ${placesData.length} entries as EXCEL`, 'success');
             } catch (err) {
                 showToast('Excel export failed: ' + err.message, 'error');
@@ -1031,11 +1035,11 @@
         let content, filename, mimeType;
         switch (format) {
             case 'csv':
-                content = generateCSV(); filename = `mapharvest_${getDateStr()}.csv`; mimeType = 'text/csv'; break;
+                content = generateCSV(); filename = `${safeQuery}.csv`; mimeType = 'text/csv'; break;
             case 'json':
-                content = JSON.stringify(placesData, null, 2); filename = `mapharvest_${getDateStr()}.json`; mimeType = 'application/json'; break;
+                content = JSON.stringify(placesData, null, 2); filename = `${safeQuery}.json`; mimeType = 'application/json'; break;
             case 'txt':
-                content = generateTXT(); filename = `mapharvest_${getDateStr()}.txt`; mimeType = 'text/plain'; break;
+                content = generateTXT(); filename = `${safeQuery}.txt`; mimeType = 'text/plain'; break;
             case 'clipboard':
                 navigator.clipboard.writeText(generateClipboardTable()).then(() => showToast('Copied to clipboard!', 'success')).catch(() => showToast('Copy failed', 'error'));
                 return;
