@@ -480,7 +480,11 @@ app.get('/api/scrape', authenticate, async (req, res) => {
         let feedExists = false;
 
         try {
-            await page.waitForSelector(feedSelector, { timeout: 8000 });
+            // Wait for at least one listing link or feed container to appear
+            await Promise.any([
+                page.waitForSelector('a[href*="/maps/place/"]', { timeout: 8000 }),
+                page.waitForSelector('div[role="feed"]', { timeout: 8000 })
+            ]);
             feedExists = true;
         } catch (e) {
             // Check if we were redirected directly to a single business page (Google does this if search matches exactly 1 business)
@@ -528,6 +532,31 @@ app.get('/api/scrape', authenticate, async (req, res) => {
             }
         }
 
+        // Dynamically detect the scrollable parent container holding the listing links
+        if (feedExists) {
+            const detectedSelector = await page.evaluate(() => {
+                const links = document.querySelectorAll('a[href*="/maps/place/"]');
+                for (const link of links) {
+                    let parent = link.parentElement;
+                    while (parent && parent !== document.body) {
+                        const style = window.getComputedStyle(parent);
+                        const overflow = style.overflowY || style.overflow || '';
+                        if ((overflow.includes('auto') || overflow.includes('scroll')) && parent.scrollHeight > parent.clientHeight) {
+                            if (parent.id) return '#' + parent.id;
+                            if (parent.getAttribute('role') === 'feed') return 'div[role="feed"]';
+                            parent.setAttribute('data-scrape-feed', 'true');
+                            return 'div[data-scrape-feed="true"]';
+                        }
+                        parent = parent.parentElement;
+                    }
+                }
+                return null;
+            });
+            if (detectedSelector) {
+                feedSelector = detectedSelector;
+            }
+        }
+
         if (!feedExists) {
             // Check if there is an empty state indicating no results
             const noResults = await page.evaluate(() => {
@@ -571,11 +600,19 @@ app.get('/api/scrape', authenticate, async (req, res) => {
 
             if (placeUrls.size >= limit) break;
 
-            // Scroll feed container down
-            const scrolled = await page.evaluate((selector) => {
+            // Scroll feed container down gradually to trigger lazy-load scroll listeners
+            const scrolled = await page.evaluate(async (selector) => {
                 const el = document.querySelector(selector);
                 if (el) {
-                    el.scrollTo(0, el.scrollHeight);
+                    const startHeight = el.scrollTop;
+                    const targetHeight = el.scrollHeight;
+                    const steps = 10;
+                    const stepSize = (targetHeight - startHeight) / steps;
+                    for (let i = 1; i <= steps; i++) {
+                        el.scrollTop = startHeight + stepSize * i;
+                        el.dispatchEvent(new Event('scroll'));
+                        await new Promise(r => setTimeout(r, 60));
+                    }
                     return { height: el.scrollHeight, scrolled: true };
                 }
                 return { height: 0, scrolled: false };
